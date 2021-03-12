@@ -14,6 +14,7 @@ import { isValidCpf } from '../../utils/validations';
 
 import api from '../../services/api';
 import { StatusBar } from 'expo-status-bar';
+import { Switch } from 'react-native';
 
 interface Ivalues{
   name: string; email: string; cpf: string; phone: string; bond: string; course: string; password: string; password_confirmation: string;
@@ -29,12 +30,15 @@ interface Icourse{
   name: string
 }
 
-export default function Register() {
+export default function AccountSettings() {
+  // Todo: Handle Password Changing
   
   const navigation = useNavigation();
 
   const [bonds, setBonds] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [isEditable, setIsEditable] = useState(false);
+  const [changePassword, setChangePassword] = useState(false);
 
   var cpfRef: TextInputMask | null = null;
   var phoneRef: TextInputMask | null = null;
@@ -120,9 +124,7 @@ export default function Register() {
       let rawCpf = values.cpf.match(/\d+/g)?.join('')
       let rawPhone = values.phone.match(/\d+/g)?.join('')
 
-      try{
-
-        const response = await api.post('/users',{
+      const response = await api.put('/users',{
           name: values.name,
           email: values.email,
           phone: rawPhone,
@@ -130,44 +132,23 @@ export default function Register() {
           password: values.password,
           bond_id: parseInt(values.bond),
           course_id: parseInt(values.course),
-        });
-       
-        //todo: insert loading component
-        console.log('response.status', response.status)
-        if(response.status == 201){
-          Toast.show({type: 'success', position: 'top',text1:'Sucesso', text2:'Registro Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
-          const data = response.data;
-          
-            await AsyncStorage.setItem(
-              '@loggedUser',
-              JSON.stringify({
-                id: data.id,
-                name: data.name,
-                email: data.email,
-                cpf: data.cpf,
-                phone: data.phone,
-                bond_id: data.bond_id,
-                role_id: data.role_id,
-                course_id: data.courses[0].id
-              }));
-          }
-          
-      }catch(error){
-        console.log(error);
+       });
 
-        //mensagens de erro no cadastro
-        if (error.response.status == 400) {
-          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:error.response.data[0].message})
+        //todo: insert loading component
+
+        if(response.status === 200){
+          Toast.show({type: 'success', position: 'top',text1:'Sucesso', text2:'Registro Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
+        }else if(response.status === 400){
+          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:response.data.message})
+        }else if(response.status === 500){
+          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao Registrar, Erro Interno do Servidor'})
         }
-        if (error.response.status == 500) {
-          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao se Cadastrar. erro Interno do Servidor!'})
-        }
-      }
-        
+
     }
 
 
     return (
+      <>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <StatusBar />
         <SafeAreaView>
@@ -190,8 +171,16 @@ export default function Register() {
             {({ values, handleChange, setFieldValue, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
               <View style={styles.formContainer}>
 
+                  <Button
+                    color="#3740FE"
+                    title="Editar meus Dados"
+                    onPress={() => setIsEditable(true)}
+                    disabled={isEditable}
+                  />
+
                 <Text>Nome</Text>
                 <TextInput
+                  editable={isEditable}
                   value={values.name}
                   style={inputStyle}
                   ref={nameRef}
@@ -207,6 +196,7 @@ export default function Register() {
 
                 <Text>CPF</Text>
                 <TextInputMask
+                  editable={isEditable}
                   type={'cpf'}
                   value={values.cpf}
                   ref={(ref) => cpfRef = ref}
@@ -225,6 +215,7 @@ export default function Register() {
 
                 <Text>Email</Text>
                 <TextInput
+                  editable={isEditable}
                   value={values.email}
                   style={inputStyle}
                   ref={emailRef}
@@ -239,6 +230,7 @@ export default function Register() {
 
                 <Text>Celular</Text>
                 <TextInputMask
+                  editable={isEditable}
                   type={'cel-phone'}
                   options={{
                     maskType: 'BRL',
@@ -270,7 +262,7 @@ export default function Register() {
                       }
                     }
                   }}>
-                  <Picker.Item label="Selecione um Vínculo" value={''} />              
+                  <Picker.Item label="Vínculo com a UEG" value={''} />              
                   {bonds.map((bond:Ibond) =>{
                     return <Picker.Item key={bond.id} label={bond.name} value={bond.id} />
                   })}
@@ -295,48 +287,67 @@ export default function Register() {
                   }
               </>
               : null}
-                
-                <Text>Senha</Text>  
-                <TextInput
-                  value={values.password}
-                  ref={passwordRef}
-                  onSubmitEditing={() => { if(password_confirmationRef != null) {password_confirmationRef.current!.focus()} }}
-                  style={inputStyle}
-                  onChangeText={handleChange('password')}
-                  placeholder="*******"
-                  onBlur={() => setFieldTouched('password')}
-                  secureTextEntry={true}
-                />
-                {touched.password && errors.password &&
-                  <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.password}</Text>
-                }
+                {isEditable ? 
+                  <View style={{display: 'flex', flexDirection: 'row'}}>
+                    <Switch
+                      trackColor={{ false: "#767577", true: "#81b0ff" }}
+                      thumbColor={changePassword ? "#81b0ff" : "#767577"}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={() => setChangePassword(!changePassword)}
+                      value={changePassword}
+                      />
+                      <Text>Alterar Senha</Text>
+                  </View>
+                :null}
+                {changePassword ? 
+                <>
+                  <Text>Nova Senha</Text>  
+                  <TextInput
+                    editable={isEditable}
+                    value={values.password}
+                    ref={passwordRef}
+                    onSubmitEditing={() => { if(password_confirmationRef != null) {password_confirmationRef.current!.focus()} }}
+                    style={inputStyle}
+                    onChangeText={handleChange('password')}
+                    placeholder="*******"
+                    onBlur={() => setFieldTouched('password')}
+                    secureTextEntry={true}
+                  />
+                  {touched.password && errors.password &&
+                    <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.password}</Text>
+                  }
 
-                <Text>Confirmação de Senha</Text>
-                <TextInput
-                  value={values.password_confirmation}
-                  ref={password_confirmationRef}
-                  style={inputStyle}
-                  onChangeText={handleChange('password_confirmation')}
-                  placeholder="*******"
-                  onBlur={() => setFieldTouched('password_confirmation')}
-                  secureTextEntry={true}
-                />
-                {touched.password_confirmation && errors.password_confirmation &&
-                  <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.password_confirmation}</Text>
-                }
-
-                <Button
-                  color="#3740FE"
-                  title='Registrar-se'
-                  disabled={!isValid}
-                  onPress={() => handleSubmit()}
-                />
+                  <Text>Confirmação de Nova Senha</Text>
+                  <TextInput
+                    editable={isEditable}
+                    value={values.password_confirmation}
+                    ref={password_confirmationRef}
+                    style={inputStyle}
+                    onChangeText={handleChange('password_confirmation')}
+                    placeholder="*******"
+                    onBlur={() => setFieldTouched('password_confirmation')}
+                    secureTextEntry={true}
+                  />
+                  {touched.password_confirmation && errors.password_confirmation &&
+                    <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.password_confirmation}</Text>
+                  }
+                </>
+                :null}
+                {isEditable ? 
+                  <Button
+                    color="#3740FE"
+                    title='Registrar-se'
+                    disabled={!isValid}
+                    onPress={() => handleSubmit()}
+                  />
+                : null}
               </View>
             )}
           </Formik>
         </SafeAreaView> 
-        <Toast  ref={(ref) => Toast.setRef(ref)} />
       </ScrollView>
+      <Toast  ref={(ref) => Toast.setRef(ref)} />
+      </>
     );
   }
   
