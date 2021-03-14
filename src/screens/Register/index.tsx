@@ -6,6 +6,9 @@ import { Formik } from 'formik'
 import Toast from 'react-native-toast-message';
 import { TextInputMask } from 'react-native-masked-text';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -68,8 +71,18 @@ export default function Register() {
 
     fetchBonds();
     fetchCourses();
-  },[])
+  },[]);
   
+  const _storeData = async (key:string, value:any) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      AsyncStorage.removeItem(key)
+      await AsyncStorage.setItem(key, jsonValue)
+    } catch (e) {
+      console.log(e)
+      Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 });
+    }
+  }
   
   
 
@@ -133,26 +146,25 @@ export default function Register() {
         });
        
         //todo: insert loading component
-        console.log('response.status', response.status)
         if(response.status == 201){
           Toast.show({type: 'success', position: 'top',text1:'Sucesso', text2:'Registro Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
           const data = response.data;
           
-            await AsyncStorage.setItem(
-              '@loggedUser',
-              JSON.stringify({
-                id: data.id,
-                name: data.name,
-                email: data.email,
-                cpf: data.cpf,
-                phone: data.phone,
-                bond_id: data.bond_id,
-                role_id: data.role_id,
-                course_id: data.courses[0].id
-              }));
+          _storeData('@loggedUser', {
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            cpf: data.cpf,
+            phone: data.phone,
+            bond_id: data.bond_id,
+            role_id: data.role_id,
+            course_id: data.courses[0].id
+          });
+            
           }
           
       }catch(error){
+        console.log(error.response.data);
         console.log(error);
 
         //mensagens de erro no cadastro
@@ -262,13 +274,14 @@ export default function Register() {
                   ref={bondRef}
                   onValueChange={(item,index) => {
                     setFieldValue('bond',item);
-                    if(item != 2 && item != '3' && item != ''){
+                    if(item != '2' && item != '3' && item != ''){
                       setFieldValue('course','1');
                     }else{
                       if(values.course == '1'){
-                        setFieldValue('course','');
+                        setFieldValue('course','1');
                       }
                     }
+                    console.log('values.course', values.course)
                   }}>
                   <Picker.Item label="Selecione um Vínculo" value={''} />              
                   {bonds.map((bond:Ibond) =>{
@@ -279,7 +292,7 @@ export default function Register() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.bond}</Text>
                 }
 
-              {values.bond == '2' || values.bond == '3' || values.bond == '' ? //If there is Bond selects the
+              {values.bond == '2' || values.bond == '3'  ? //If there is Bond selects the
               <>
                 <Text>Curso Relacionado</Text>      
                   <Picker

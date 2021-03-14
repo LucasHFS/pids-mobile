@@ -43,6 +43,7 @@ export default function Login() {
             .required('Digite seu CPF!'),
             password: yup
               .string()
+              .min(6, 'Senha deve possuir 6 dígitos ou mais!')
               .required('Digite sua senha!'),
           })}
         >

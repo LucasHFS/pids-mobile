@@ -16,6 +16,9 @@ import api from '../../services/api';
 import { StatusBar } from 'expo-status-bar';
 import { Switch } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 interface Ivalues{
   name: string; email: string; cpf: string; phone: string; bond: string; course: string; password: string; password_confirmation: string;
 }
@@ -30,6 +33,18 @@ interface Icourse{
   name: string
 }
 
+interface InitialValues{
+  id: number
+  cpf:string
+  name:string
+  email:string
+  phone:string
+  bond:string
+  course:string
+  password:string
+  password_confirmation:string
+}
+
 export default function AccountSettings() {
   // Todo: Handle Password Changing
   
@@ -39,7 +54,8 @@ export default function AccountSettings() {
   const [courses, setCourses] = useState([]);
   const [isEditable, setIsEditable] = useState(false);
   const [changePassword, setChangePassword] = useState(false);
-
+  const [initialValues, setInitialValues] = useState<InitialValues>({id: -1, name:'', cpf:'',email:'', phone:'', bond:'',course:'', password: '', password_confirmation: ''});
+  
   var cpfRef: TextInputMask | null = null;
   var phoneRef: TextInputMask | null = null;
   const nameRef = useRef(null);
@@ -69,13 +85,32 @@ export default function AccountSettings() {
         console.log(err)
       }
     }
+    
+    const _getData = async (key:string) => {
+      try {
+        const jsonValue = await AsyncStorage.getItem(key)
+        const objValue = jsonValue != null ? JSON.parse(jsonValue) : null;
+        setInitialValues({
+          id: objValue.id,
+          cpf: objValue.cpf,
+          name: objValue.name,
+          email: objValue.email,
+          phone: objValue.phone,
+          bond: objValue.bond_id,
+          course: objValue.course_id,
+          password: '',
+          password_confirmation: '',
+        });
+
+      } catch(e) {
+        console.log(e)
+      }
+    }
+    _getData('@loggedUser');
 
     fetchBonds();
     fetchCourses();
-  },[])
-  
-  
-  
+  },[]);
 
   const inputStyle = {
     borderWidth: 1,
@@ -107,15 +142,15 @@ export default function AccountSettings() {
     password: yup
       .string()
       .min(6, 'Senha deve possuir no mínimo 6 caracteres!')
-      .required('Digite sua senha!'),
+      .notRequired(),
     password_confirmation: yup
       .string()
       .min(6, 'Senha deve possuir no mínimo 6 caracteres!')
       .equals([yup.ref('password')], 'Senhas devem ser iguais')
-      .required('Confirme sua senha!'),
+      .notRequired(),
   })
 
-    const handleRegister = async (values: Ivalues) =>{
+    const handleUpdate = async (values: Ivalues) =>{
       if(values.bond != '2' && values.bond != '3'){
         values.course = '1';
       }
@@ -124,12 +159,14 @@ export default function AccountSettings() {
       let rawCpf = values.cpf.match(/\d+/g)?.join('')
       let rawPhone = values.phone.match(/\d+/g)?.join('')
 
-      const response = await api.put('/users',{
+      const password = values.password !== '' ? values.password : null
+
+      const response = await api.put(`/users/${initialValues.id}`,{
           name: values.name,
           email: values.email,
           phone: rawPhone,
           cpf: rawCpf,
-          password: values.password,
+          password: password,
           bond_id: parseInt(values.bond),
           course_id: parseInt(values.course),
        });
@@ -153,18 +190,9 @@ export default function AccountSettings() {
         <StatusBar />
         <SafeAreaView>
           <Formik
-            initialValues={{ 
-              cpf: '',
-              name:'',
-              email: '',
-              phone: '',
-              bond:'',
-              course:'',
-              password: '',
-              password_confirmation: '',
-            }}
-
-            onSubmit={values => handleRegister(values)}
+            initialValues={initialValues}
+            enableReinitialize={true}
+            onSubmit={values => handleUpdate(values)}
 
             validationSchema={validationSchema}
           >
@@ -250,6 +278,7 @@ export default function AccountSettings() {
                 
                 <Text>Relação com a UEG</Text>
                 <Picker
+                  enabled={isEditable}
                   selectedValue={values.bond}
                   ref={bondRef}
                   onValueChange={(item,index) => {
@@ -258,7 +287,7 @@ export default function AccountSettings() {
                       setFieldValue('course','1');
                     }else{
                       if(values.course == '1'){
-                        setFieldValue('course','');
+                        setFieldValue('course','1');
                       }
                     }
                   }}>
@@ -271,15 +300,17 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.bond}</Text>
                 }
 
-              {values.bond == '2' || values.bond == '3' || values.bond == '' ? //If there is Bond selects the
+              {values.bond == '2' || values.bond == '3' ? //If there is Bond selects the
               <>
                 <Text>Curso Relacionado</Text>      
                   <Picker
+                    enabled={isEditable}
                     selectedValue={values.course}
+                    ref={courseRef}
                     onValueChange={(item,index) => {setFieldValue('course',item); }}>
                     <Picker.Item label="Selecione um Curso" value={''} />              
                     {courses.map((course:Icourse) =>{
-                      return <Picker.Item key={course.id} label={course.name} value={String(course.id)} />
+                      return <Picker.Item key={course.id} label={course.name} value={course.id } />
                     })}
                   </Picker>  
                   {touched.course && errors.course &&
@@ -336,7 +367,7 @@ export default function AccountSettings() {
                 {isEditable ? 
                   <Button
                     color="#3740FE"
-                    title='Registrar-se'
+                    title='Alterar Dados'
                     disabled={!isValid}
                     onPress={() => handleSubmit()}
                   />
