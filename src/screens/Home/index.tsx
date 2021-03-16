@@ -35,8 +35,8 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Coming Soon</Text>
-      <Text>Welcome: {user.name}</Text>
+      <Text>Em Breve!</Text>
+      <Text>Bem Vindo</Text>
     </View>
   );
 }
