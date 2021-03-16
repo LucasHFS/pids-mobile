@@ -10,14 +10,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  button: {
-    width: '48%',
-    backgroundColor: '#1D2362',
-    borderRadius: 10,
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
+
+  divider: {
+    padding: 30
   },
 });
 
