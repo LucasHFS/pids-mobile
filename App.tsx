@@ -34,7 +34,7 @@ function Main(){
       }}
     >
       <Tab.Screen name="Home" component={Home} options={{tabBarIcon: ({color,size}) => <Ionicons name={'home'} size={size} color={color} />}}/>
-      <Tab.Screen name="SettingsScreens" component={SettingsScreens} options={{tabBarIcon: ({color,size}) => <Ionicons name={'settings'} size={size} color={color} />}}/>
+      <Tab.Screen name="Configurações" component={SettingsScreens} options={{tabBarIcon: ({color,size}) => <Ionicons name={'settings'} size={size} color={color} />}}/>
     </Tab.Navigator>
   )
 }

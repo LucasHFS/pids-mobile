@@ -55,7 +55,7 @@ export default function Register() {
         const response = await api.get('bonds');
         setBonds(response.data);
       } catch (err) {
-        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Vínculos' })
+        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Vínculos', })
         console.log(err)
       }
     }
@@ -81,7 +81,7 @@ export default function Register() {
       await AsyncStorage.setItem(key, jsonValue)
     } catch (e) {
       console.log(e)
-      Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 });
+      Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 , });
     }
   }
 
@@ -153,7 +153,7 @@ export default function Register() {
 
       //todo: insert loading component
       if (response.status == 201) {
-        Toast.show({ type: 'success', position: 'top', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Main') });
+        Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Main'), });
         const data = response.data;
 
         _storeData('@loggedUser', {
@@ -170,15 +170,14 @@ export default function Register() {
       }
 
     } catch (error) {
-      console.log(error.response.data);
       console.log(error);
 
       //mensagens de erro no cadastro
       if (error.response.status == 400) {
-        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: error.response.data[0].message })
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message , })
       }
       if (error.response.status == 500) {
-        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao se Cadastrar. erro Interno do Servidor!' })
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao se Cadastrar. erro Interno do Servidor!' , })
       }
     }
 
@@ -186,7 +185,7 @@ export default function Register() {
 
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic">
+    <ScrollView contentInsetAdjustmentBehavior="always">
       <StatusBar />
       <SafeAreaView style={styles.formContainer}>
         <Formik
@@ -287,7 +286,6 @@ export default function Register() {
                       setFieldValue('course', '1');
                     }
                   }
-                  console.log('values.course', values.course)
                 }}>
                 <Picker.Item label="Selecione um Vínculo" value={''} />
                 {bonds.map((bond: Ibond) => {
@@ -361,7 +359,7 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   formContainer: {
-    padding: 50,
+    padding: 20,
     justifyContent: 'space-between',
   },
   textInput: {

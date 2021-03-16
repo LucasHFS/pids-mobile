@@ -103,6 +103,7 @@ export default function AccountSettings() {
         });
 
       } catch(e) {
+        Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao Carregar Dados Internos', })
         console.log(e)
       }
     }
@@ -174,11 +175,11 @@ export default function AccountSettings() {
         //todo: insert loading component
 
         if(response.status === 200){
-          Toast.show({type: 'success', position: 'top',text1:'Sucesso', text2:'Registro Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
+          Toast.show({type: 'success', position: 'bottom',text1:'Sucesso', text2:'Alteração Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
         }else if(response.status === 400){
-          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:response.data.message})
+          Toast.show({type: 'error', position: 'bottom',text1:'Erro', text2:response.data.message})
         }else if(response.status === 500){
-          Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao Registrar, Erro Interno do Servidor'})
+          Toast.show({type: 'error', position: 'bottom',text1:'Erro', text2:'Falha ao Registrar, Erro Interno do Servidor'})
         }
 
     }
