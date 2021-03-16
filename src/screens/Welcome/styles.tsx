@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     color: "#808080"
   },
   textBody: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
 
