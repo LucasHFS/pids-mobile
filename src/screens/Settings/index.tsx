@@ -12,7 +12,7 @@ export default function Settings() {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', padding: 40 }}>
-      <Text style={{ padding: 10, fontSize: 25, fontWeight: 'bold', }}>Settings</Text>
+      <Text style={{ padding: 10, paddingTop: 30, fontSize: 25, fontWeight: 'bold', }}>Configurações</Text>
 
 
       <View style={{ padding: 20, width: 200, margin: 10 }}>

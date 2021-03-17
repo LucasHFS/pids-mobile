@@ -113,6 +113,16 @@ export default function AccountSettings() {
     fetchCourses();
   },[]);
 
+  const _mergeData = async (key: string, value: any) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.mergeItem(key, jsonValue)
+    } catch (e) {
+      console.log(e)
+      Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 , });
+    }
+  }
+
   const inputStyle = {
     borderWidth: 1,
     borderColor: '#4e4e4e',
@@ -160,7 +170,11 @@ export default function AccountSettings() {
       let rawCpf = values.cpf.match(/\d+/g)?.join('')
       let rawPhone = values.phone.match(/\d+/g)?.join('')
 
-      const password = values.password !== '' ? values.password : null
+      const password = values.password !== '' ? values.password : null;
+
+
+    try {
+
 
       const response = await api.put(`/users/${initialValues.id}`,{
           name: values.name,
@@ -176,20 +190,39 @@ export default function AccountSettings() {
 
         if(response.status === 200){
           Toast.show({type: 'success', position: 'bottom',text1:'Sucesso', text2:'Alteração Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
-        }else if(response.status === 400){
-          Toast.show({type: 'error', position: 'bottom',text1:'Erro', text2:response.data.message})
-        }else if(response.status === 500){
-          Toast.show({type: 'error', position: 'bottom',text1:'Erro', text2:'Falha ao Registrar, Erro Interno do Servidor'})
+          const data = response.data;
+
+          _mergeData('@loggedUser', {
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            cpf: data.cpf,
+            phone: data.phone,
+            bond_id: data.bond_id,
+            role_id: data.role_id,
+            course_id: data.courses[0].id
+          });
+
+          setIsEditable(false);
         }
 
-    }
+    } catch (error) {
 
+       //mensagens de erro no cadastro
+      if (error.response.status == 400) {
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message , })
+      }
+      if (error.response.status == 500) {
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao Alterar Dados. erro Interno do Servidor!' , })
+      }
+    }
+  }
 
     return (
       <>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <StatusBar />
-        <SafeAreaView>
+        <SafeAreaView style={styles.formContainer}>
           <Formik
             initialValues={initialValues}
             enableReinitialize={true}
@@ -207,7 +240,7 @@ export default function AccountSettings() {
                     disabled={isEditable}
                   />
 
-                <Text>Nome</Text>
+                <Text style={styles.textInput}>Nome</Text>
                 <TextInput
                   editable={isEditable}
                   value={values.name}
@@ -223,7 +256,7 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.name}</Text>
                 } 
 
-                <Text>CPF</Text>
+                <Text style={styles.textInput}>CPF</Text>
                 <TextInputMask
                   editable={isEditable}
                   type={'cpf'}
@@ -242,7 +275,7 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.cpf}</Text>
                 }       
 
-                <Text>Email</Text>
+                <Text style={styles.textInput}>Email</Text>
                 <TextInput
                   editable={isEditable}
                   value={values.email}
@@ -257,7 +290,7 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.email}</Text>
                 }    
 
-                <Text>Celular</Text>
+                <Text style={styles.textInput}>Celular</Text>
                 <TextInputMask
                   editable={isEditable}
                   type={'cel-phone'}
@@ -277,7 +310,7 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.phone}</Text>
                 }
                 
-                <Text>Relação com a UEG</Text>
+                <Text style={styles.textInput}>Relação com a UEG</Text>
                 <Picker
                   enabled={isEditable}
                   selectedValue={values.bond}
@@ -303,7 +336,7 @@ export default function AccountSettings() {
 
               {values.bond == '2' || values.bond == '3' ? //If there is Bond selects the
               <>
-                <Text>Curso Relacionado</Text>      
+                <Text style={styles.textInput}>Curso Relacionado</Text>      
                   <Picker
                     enabled={isEditable}
                     selectedValue={values.course}
@@ -320,7 +353,7 @@ export default function AccountSettings() {
               </>
               : null}
                 {isEditable ? 
-                  <View style={{display: 'flex', flexDirection: 'row'}}>
+                  <View style={{display: 'flex', flexDirection: 'row', marginTop: 15}}>
                     <Switch
                       trackColor={{ false: "#767577", true: "#81b0ff" }}
                       thumbColor={changePassword ? "#81b0ff" : "#767577"}
@@ -328,12 +361,12 @@ export default function AccountSettings() {
                       onValueChange={() => setChangePassword(!changePassword)}
                       value={changePassword}
                       />
-                      <Text>Alterar Senha</Text>
+                      <Text style={styles.textInput}>Alterar Senha</Text>
                   </View>
                 :null}
                 {changePassword ? 
                 <>
-                  <Text>Nova Senha</Text>  
+                  <Text style={styles.textInput}>Nova Senha</Text>  
                   <TextInput
                     editable={isEditable}
                     value={values.password}
@@ -349,7 +382,7 @@ export default function AccountSettings() {
                     <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.password}</Text>
                   }
 
-                  <Text>Confirmação de Nova Senha</Text>
+                  <Text style={styles.textInput}>Confirmação de Nova Senha</Text>
                   <TextInput
                     editable={isEditable}
                     value={values.password_confirmation}
@@ -366,12 +399,15 @@ export default function AccountSettings() {
                 </>
                 :null}
                 {isEditable ? 
+                <>
+                  <View style={styles.divider}></View>
                   <Button
                     color="#3740FE"
                     title='Alterar Dados'
                     disabled={!isValid}
                     onPress={() => handleSubmit()}
                   />
+                </>
                 : null}
               </View>
             )}
@@ -385,8 +421,17 @@ export default function AccountSettings() {
   
   const styles = StyleSheet.create({
     formContainer: {
-    padding: 50 
-  }
+      padding: 20,
+      justifyContent: 'space-between',
+    },
+    textInput: {
+      marginTop: 15,
+      fontWeight: 'bold',
+      fontSize: 17
+    },
+    divider: {
+      padding: 20
+    },
 });
 
 LogBox.ignoreAllLogs(false)
