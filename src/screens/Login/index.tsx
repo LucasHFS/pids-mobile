@@ -12,6 +12,8 @@ import { Input } from 'react-native-elements';
 import { Button } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { useAuth } from '../../hooks/auth';
+
 export default function Login() {
 
   const cpfRef = useRef(null);
@@ -20,25 +22,39 @@ export default function Login() {
 
 
   const inputStyle = {
-    borderBottomWidth: 1,
+    // borderBottomWidth: 1,
     borderColor: '#4e4e4e',
-    padding: 12,
-    marginBottom: 5,
+    padding: 20,
+    marginBottom: 8,
+    margin: 5,
+    borderRadius: 15,
+    borderWidth: 1
   };
+
+  const { signIn } = useAuth();
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="always">
       <SafeAreaView style={styles.container}>
         <StatusBar />
-        <Toast ref={(ref) => Toast.setRef(ref)} />
+        {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
         <Formik
           initialValues={{
             cpf: '',
             password: ''
           }}
-          onSubmit={(values) => {
-            values.cpf = values.cpf.match(/\d+/g)!.join('')
-            navigation.navigate('Main')
+          onSubmit={async (values) => {
+            values.cpf = values.cpf.match(/\d+/g)!.join('');
+            console.log(values);
+            try {
+              await signIn({
+                cpf: values.cpf,
+                password: values.password,
+              });
+            } catch (err) {
+              Alert.alert('Combinação de Login e senha incorreta!');
+            }
+
           }}
           validationSchema={yup.object().shape({
             cpf: yup
@@ -52,12 +68,11 @@ export default function Login() {
           })}
         >
           {({ values, handleChange, errors, setFieldTouched, setFieldValue, touched, isValid, handleSubmit }) => (
-            <View style={styles.container}>
+            < View style={styles.container}>
               <View style={{ paddingBottom: 20, alignItems: 'center' }}>{/* Header */}
                 <Image source={require('../../../assets/e-reserva.png')} />
               </View>
-              {/* <Text style={styles.title}>Login</Text> */}
-
+              <Text style={styles.title}>Faça seu login</Text>
 
               <Text style={styles.textInput}>CPF</Text>
 
@@ -86,12 +101,14 @@ export default function Login() {
                 placeholder="*******"
                 onBlur={() => setFieldTouched('password')}
                 secureTextEntry={true}
+
               />
+
               {touched.password && errors.password &&
                 <Text style={{ fontSize: 14, color: '#FF0D10', marginTop: 6 }}>{errors.password}</Text>
               }
 
-              <View style={{ padding: 40 }}></View>
+              <View style={{ padding: 20 }}></View>
 
               <Button
                 title='Login'
@@ -112,7 +129,7 @@ export default function Login() {
         </View>
 
       </SafeAreaView>
-    </ScrollView>
+    </ScrollView >
   );
 }
 
@@ -129,9 +146,10 @@ const styles = StyleSheet.create({
     padding: 30
   },
   title: {
-    fontSize: 40,
+    fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
+    padding: 20,
   },
   link: {
     fontWeight: 'bold',
@@ -140,6 +158,8 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontWeight: 'bold',
+    paddingLeft: 6,
+    paddingBottom: 4,
     fontSize: 17
   }
 });

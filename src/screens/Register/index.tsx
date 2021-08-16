@@ -39,6 +39,7 @@ export default function Register() {
 
   const [bonds, setBonds] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [roles, setRoles] = useState([]);
 
   var cpfRef: TextInputMask | null = null;
   var phoneRef: TextInputMask | null = null;
@@ -55,8 +56,8 @@ export default function Register() {
         const response = await api.get('bonds');
         setBonds(response.data);
       } catch (err) {
-        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Vínculos', })
-        console.log(err)
+        Alert.alert('Falha ao Carregar Vínculos')
+        // console.log(err)
       }
     }
 
@@ -65,8 +66,18 @@ export default function Register() {
         const response = await api.get('courses');
         setCourses(response.data);
       } catch (err) {
-        Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Cursos', })
-        console.log(err)
+        Alert.alert('Falha ao Carregar Cursos')
+        // console.log(err)
+      }
+    }
+
+    const fetchRoles = async () => {
+      try {
+        const response = await api.get('courses');
+        setCourses(response.data);
+      } catch (err) {
+        Alert.alert('Falha ao Carregar Cursos');
+        // console.log(err)
       }
     }
 
@@ -74,16 +85,18 @@ export default function Register() {
     fetchCourses();
   }, []);
 
-  const _storeData = async (key: string, value: any) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      AsyncStorage.removeItem(key)
-      await AsyncStorage.setItem(key, jsonValue)
-    } catch (e) {
-      console.log(e)
-      Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 , });
-    }
-  }
+  // const _storeData = async (key: string, value: any) => {
+  //   try {
+  //     const jsonValue = JSON.stringify(value)
+  //     AsyncStorage.removeItem(key)
+  //     await AsyncStorage.setItem(key, jsonValue)
+  //   } catch (e) {
+  //     console.log(e)
+  //     Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Cursos', })
+
+  //     Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000, });
+  //   }
+  // }
 
 
 
@@ -147,25 +160,25 @@ export default function Register() {
         phone: rawPhone,
         cpf: rawCpf,
         password: values.password,
-        bond_id: parseInt(values.bond),
-        course_id: parseInt(values.course),
+        bond_id: values.bond,
+        course_id: values.course,
       });
 
       //todo: insert loading component
       if (response.status == 201) {
-        Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Main'), });
-        const data = response.data;
+        // Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Main'), });
+        // const data = response.data;
 
-        _storeData('@loggedUser', {
-          id: data.id,
-          name: data.name,
-          email: data.email,
-          cpf: data.cpf,
-          phone: data.phone,
-          bond_id: data.bond_id,
-          role_id: data.role_id,
-          course_id: data.courses[0].id
-        });
+        // _storeData('@loggedUser', {
+        //   id: data.id,
+        //   name: data.name,
+        //   email: data.email,
+        //   cpf: data.cpf,
+        //   phone: data.phone,
+        //   bond_id: data.bond_id,
+        //   role_id: data.role_id,
+        //   course_id: data.courses[0].id
+        // });
 
       }
 
@@ -174,10 +187,10 @@ export default function Register() {
 
       //mensagens de erro no cadastro
       if (error.response.status == 400) {
-        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message , })
+        // Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message, })
       }
       if (error.response.status == 500) {
-        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao se Cadastrar. erro Interno do Servidor!' , })
+        // Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao se Cadastrar. erro Interno do Servidor!', })
       }
     }
 
@@ -278,6 +291,7 @@ export default function Register() {
                 selectedValue={values.bond}
                 ref={bondRef}
                 onValueChange={(item, index) => {
+                  console.log(item, 'visitante');
                   setFieldValue('bond', item);
                   if (item != '2' && item != '3' && item != '') {
                     setFieldValue('course', '1');
@@ -296,7 +310,7 @@ export default function Register() {
                 <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.bond}</Text>
               }
 
-              {values.bond == '2' || values.bond == '3' ? //If there is Bond selects the
+              {values.bond[2] == '2' || values.bond[2] == '3' ? //If there is Bond selects the
                 <>
                   <Text style={styles.textInput}>Curso Relacionado</Text>
                   <Picker
@@ -352,7 +366,7 @@ export default function Register() {
           )}
         </Formik>
       </SafeAreaView>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
+      {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
     </ScrollView>
   );
 }

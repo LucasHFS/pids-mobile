@@ -3,15 +3,18 @@ import { Text, View, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Input } from 'react-native-elements';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button } from 'react-native-elements';
+
+import { useAuth } from '../../hooks/auth';
 
 export default function Settings() {
 
   const navigation = useNavigation();
 
+  const { signOut } = useAuth();
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', padding: 40 }}>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', padding: 40, backgroundColor: '#FFFF' }}>
       <Text style={{ padding: 10, paddingTop: 30, fontSize: 25, fontWeight: 'bold', }}>Configurações</Text>
 
 
@@ -40,10 +43,7 @@ export default function Settings() {
             />
           }
           title=" Sair"
-          onPress={() => {
-            AsyncStorage.removeItem('@loggedUser')
-            navigation.navigate('Login')
-          }}
+          onPress={() => { signOut() }}
         />
       </View>
     </View>
