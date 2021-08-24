@@ -58,15 +58,12 @@ const AuthProvider: React.FC = ({ children }) => {
   }, [])
 
   const signIn = useCallback(async ({ cpf, password }) => {
-    // console.log('signIn');
-
-    // const response = await api.post<{ token: string; user: string }>
     const response = await api.post('sessions', {
       cpf,
       password,
     });
 
-    // console.log(response.data); 
+    console.log(response.data); 
     const { token, user } = response.data;
 
     await AsyncStorage.multiSet([
@@ -98,7 +95,7 @@ const AuthProvider: React.FC = ({ children }) => {
         user,
       });
     },
-    [setData, data.token],
+    [ setData, data.token ],
   );
 
   return (

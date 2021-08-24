@@ -4,9 +4,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import Home from '../../src/screens/Home';
+import EquipmentReserve from '../screens/NewReserve/EquipmentReserve';
+import NewReserve from '../screens/NewReserve';
 import Settings from '../../src/screens/Settings';
 import AccountSettings from '../../src/screens/AccountSettings';
-
+import SportCourtReserve from '../screens/NewReserve/SportCourtReserve';
+import RoomReserve from '../screens/NewReserve/RoomReserve';
 
 const StackSettings = createStackNavigator();
 const SettingsScreens: React.FC = () => (
@@ -14,6 +17,17 @@ const SettingsScreens: React.FC = () => (
     <StackSettings.Screen name="Settings" options={{ title: 'Configurações', headerShown: false }} component={Settings} />
     <StackSettings.Screen name="AccountSettings" options={{ title: 'Configurações da Conta' }} component={AccountSettings} />
   </StackSettings.Navigator>
+);
+
+const Principal = createStackNavigator();
+const PrincipalScreens: React.FC = () => (
+  <Principal.Navigator initialRouteName="Home">
+    <Principal.Screen name="Home" options={{ title: 'Home', headerShown: false }} component={Home} />
+    <Principal.Screen name="NewReserve" options={{ title: 'Nova Reserva', headerShown: false }} component={NewReserve} />
+    <Principal.Screen name="EquipmentReserve" options={{ title: 'Reserva de Equipamentos', headerShown: false }} component={EquipmentReserve} />
+    <Principal.Screen name="RoomReserve" options={{ title: 'Reserva de Salas', headerShown: false }} component={RoomReserve} />
+    <Principal.Screen name="SportCourtReserve" options={{ title: 'Reserva de Quadras', headerShown: false }} component={SportCourtReserve} />
+  </Principal.Navigator>
 );
 
 const Tab = createBottomTabNavigator();
@@ -24,7 +38,7 @@ const Main: React.FC = () => (
       inactiveTintColor: 'gray',
     }}
   >
-    <Tab.Screen name="Home" component={Home} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'home'} size={size} color={color} /> }} />
+    <Tab.Screen name="Home" component={PrincipalScreens} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'home'} size={size} color={color} /> }} />
     <Tab.Screen name="Configurações" component={SettingsScreens} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'settings'} size={size} color={color} /> }} />
 
   </Tab.Navigator>
