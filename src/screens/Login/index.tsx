@@ -53,6 +53,7 @@ export default function Login() {
               });
             } catch (err) {
               console.log(err)
+              console.log(err.body)
               Alert.alert('Combinação de Login e senha incorreta!');
             }
 

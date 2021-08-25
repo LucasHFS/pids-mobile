@@ -7,6 +7,9 @@ import { Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import api from '../../services/api';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import SportCourtReserveTouchable from '../../components/SportCourtReserveTouchable';
+import RoomReserveTouchable from '../../components/RoomReserveTouchable';
+import EquipmentReserveTouchable from '../../components/EquipmentReserveTouchable';
 
 
 interface LoggedUser {
@@ -19,13 +22,14 @@ interface LoggedUser {
   course: string
 }
 
+// TODO: estilizar o componente
 export default function Home() {
 
   const [myReserves, setMyReserves] = useState([]);
   const { signIn } = useAuth();
   
   useEffect(() => {
-    const fetchBonds = async () => {
+    const fetchReserves = async () => {
       try {
         const token = await AsyncStorage.getItem('@EReserva:token');
     
@@ -40,7 +44,7 @@ export default function Home() {
       }
     }
 
-    fetchBonds();
+    fetchReserves();
   }, []);
 
   const navigation = useNavigation();
@@ -48,70 +52,29 @@ export default function Home() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 20, margin: 10 }}>
+        {/* TODO: adicionar um modal para selecionar o tipo da reserva, por enquanto vou usar o de equipamento pra teste */}
         <Button
           title="Nova Reserva"
-          onPress={() => navigation.navigate('NewReserve')}
+          onPress={() => { navigation.navigate('NewEquipmentReserve') } }
         />
       </View>
-
+      
       <View style={{ padding: 20, margin: 10 }}>
-
-        <Text>Minhas Reservas de Equipamento</Text>
+        <Text>Minhas Reservas</Text>
         <FlatList
-          data={myReserves.equipmentsReserves}
+          data={myReserves}
           renderItem={({ item, index, separators }) => (
-            <TouchableHighlight
-              key={item.id}
-              onPress={() => {}}
-              onShowUnderlay={separators.highlight}
-              onHideUnderlay={separators.unhighlight}>
-              <View style={{ backgroundColor: 'white' }}>
-                <Text>Status: {item.status}</Text>
-                <Text>{item.equipment.name}</Text>
-              </View>
-            </TouchableHighlight>
+            <View style={{ padding: 20, margin: 10 }}>
+              { 
+                item.equipment ? <EquipmentReserveTouchable reserve={item} onPress={() => {} } /> : 
+                  item.room ? <RoomReserveTouchable reserve={item}  onPress={() => {} } /> : 
+                    item.sport_court ? <SportCourtReserveTouchable reserve={item}  onPress={() => {} } /> : null
+              }
+            </View>
           )}
         />
       </View>
 
-      <View style={{ padding: 20, margin: 10 }}>
-        <Text>Minhas Reservas de Equipamento</Text>
-        <FlatList
-          data={myReserves.roomsReserves}
-          renderItem={({ item, index, separators }) => (
-            <TouchableHighlight
-              key={item.id}
-              onPress={() => {}}
-              onShowUnderlay={separators.highlight}
-              onHideUnderlay={separators.unhighlight}>
-              <View style={{ backgroundColor: 'white' }}>
-                <Text>Status: {item.status}</Text>
-                <Text>{item.room.name}</Text>
-              </View>
-            </TouchableHighlight>
-          )}
-        />
-      </View>
-
-
-      <View style={{ padding: 20, margin: 10 }}>
-        <Text>Minhas Reservas de Equipamento</Text>
-        <FlatList
-          data={myReserves.sportCourtReserves}
-          renderItem={({ item, index, separators }) => (
-            <TouchableHighlight
-              key={item.id}
-              onPress={() => {}}
-              onShowUnderlay={separators.highlight}
-              onHideUnderlay={separators.unhighlight}>
-              <View style={{ backgroundColor: 'white' }}>
-                <Text>Status: {item.status}</Text>
-                <Text>{item.sportCourt.name}</Text>
-              </View>
-            </TouchableHighlight>
-          )}
-        />
-      </View>
     </View>
   );
 }

@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import Home from '../../src/screens/Home';
-import EquipmentReserve from '../screens/NewReserve/EquipmentReserve';
+import NewEquipmentReserve from '../screens/NewReserve/NewEquipmentReserve';
 import NewReserve from '../screens/NewReserve';
 import Settings from '../../src/screens/Settings';
 import AccountSettings from '../../src/screens/AccountSettings';
@@ -24,7 +24,7 @@ const PrincipalScreens: React.FC = () => (
   <Principal.Navigator initialRouteName="Home">
     <Principal.Screen name="Home" options={{ title: 'Home', headerShown: false }} component={Home} />
     <Principal.Screen name="NewReserve" options={{ title: 'Nova Reserva', headerShown: false }} component={NewReserve} />
-    <Principal.Screen name="EquipmentReserve" options={{ title: 'Reserva de Equipamentos', headerShown: false }} component={EquipmentReserve} />
+    <Principal.Screen name="NewEquipmentReserve" options={{ title: 'Nova Reserva de Equipamentos', headerShown: false }} component={NewEquipmentReserve} />
     <Principal.Screen name="RoomReserve" options={{ title: 'Reserva de Salas', headerShown: false }} component={RoomReserve} />
     <Principal.Screen name="SportCourtReserve" options={{ title: 'Reserva de Quadras', headerShown: false }} component={SportCourtReserve} />
   </Principal.Navigator>
