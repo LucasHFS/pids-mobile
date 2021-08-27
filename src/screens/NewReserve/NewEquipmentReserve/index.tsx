@@ -21,14 +21,17 @@ export default function NewEquipmentReserve() {
   const navigation = useNavigation();
 
 
-  const [date, setDate] = useState(new Date(1598051730000));
+  const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
 
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'ios');
-    setDate(currentDate);
+    const currentDate = selectedDate;
+    console.log(currentDate),
+      setShow(Platform.OS === 'ios');
+    if (currentDate != undefined) {
+      setDate(currentDate);
+    }
   };
 
   const showMode = (currentMode) => {
@@ -50,15 +53,21 @@ export default function NewEquipmentReserve() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 20, margin: 10 }}>
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode='date'
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
+        <View>
+          <Button onPress={showDatepicker} title="Selecione a data" />
+        </View>
+
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
+        )}
       </View>
-    </View>
+    </View >
   );
 }
