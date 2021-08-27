@@ -22,11 +22,11 @@ export default function NewReserve() {
   const navigation = useNavigation();
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center' }}>
       <View style={{ padding: 20, width: 200, margin: 10 }}>
         <Button
           title="Reservas de Equipamentos"
-          onPress={() => navigation.navigate('EquipmentReserve')}
+          onPress={() => navigation.navigate('NewEquipmentReserve')}
         />
       </View>
 

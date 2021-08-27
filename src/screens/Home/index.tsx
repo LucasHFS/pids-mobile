@@ -55,7 +55,7 @@ export default function Home() {
         {/* TODO: adicionar um modal para selecionar o tipo da reserva, por enquanto vou usar o de equipamento pra teste */}
         <Button
           title="Nova Reserva"
-          onPress={() => { navigation.navigate('NewEquipmentReserve') } }
+          onPress={() => { navigation.navigate('NewReserve') } }
         />
       </View>
       
