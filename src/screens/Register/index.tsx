@@ -9,12 +9,9 @@ import { Button } from 'react-native-elements';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 import { useNavigation } from '@react-navigation/native';
 
-
 import { isValidCpf } from '../../utils/validations';
-
 
 import api from '../../services/api';
 import { StatusBar } from 'expo-status-bar';
@@ -39,7 +36,9 @@ export default function Register() {
 
   const [bonds, setBonds] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [roles, setRoles] = useState([]);
+  const [visitante, setVisitante] = useState({});
+  const [colaborador, setColaborador] = useState({});
+  const [semVinculo, setSemVinculo] = useState({});
 
   var cpfRef: TextInputMask | null = null;
   var phoneRef: TextInputMask | null = null;
@@ -50,11 +49,21 @@ export default function Register() {
   const passwordRef = useRef(null);
   const password_confirmationRef = useRef(null);
 
+
+
   useEffect(() => {
+    const getBonds = (bonds) => {
+      const visitante = bonds.find((bond => bond.name === 'Visitante' ))
+      const colaborador = bonds.find((bond => bond.name === 'Colaborador' ))
+      setVisitante(visitante)
+      setColaborador(colaborador)
+    }
+
     const fetchBonds = async () => {
       try {
         const response = await api.get('bonds');
         setBonds(response.data);
+        getBonds(response.data)
       } catch (err) {
         Alert.alert('Falha ao Carregar Vínculos')
         // console.log(err)
@@ -65,18 +74,10 @@ export default function Register() {
       try {
         const response = await api.get('courses');
         setCourses(response.data);
+        const semVinculo = response.data.find((course => course.name === 'Sem Vínculo de Curso com a UEG' ))
+        setSemVinculo(semVinculo)
       } catch (err) {
         Alert.alert('Falha ao Carregar Cursos')
-        // console.log(err)
-      }
-    }
-
-    const fetchRoles = async () => {
-      try {
-        const response = await api.get('courses');
-        setCourses(response.data);
-      } catch (err) {
-        Alert.alert('Falha ao Carregar Cursos');
         // console.log(err)
       }
     }
@@ -84,21 +85,6 @@ export default function Register() {
     fetchBonds();
     fetchCourses();
   }, []);
-
-  // const _storeData = async (key: string, value: any) => {
-  //   try {
-  //     const jsonValue = JSON.stringify(value)
-  //     AsyncStorage.removeItem(key)
-  //     await AsyncStorage.setItem(key, jsonValue)
-  //   } catch (e) {
-  //     console.log(e)
-  //     Toast.show({ type: 'error', position: 'top', text1: 'Erro', text2: 'Falha ao Carregar Cursos', })
-
-  //     Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000, });
-  //   }
-  // }
-
-
 
   const inputStyle = {
     borderWidth: 1,
@@ -144,29 +130,27 @@ export default function Register() {
   })
 
   const handleRegister = async (values: Ivalues) => {
-    if (values.bond != '2' && values.bond != '3') {
-      values.course = '1';
+    if (values.bond === visitante.id || values.bond === colaborador.id) {
+      values.course = semVinculo.id;
     }
-
 
     let rawCpf = values.cpf.match(/\d+/g)?.join('')
     let rawPhone = values.phone.match(/\d+/g)?.join('')
 
     try {
-
       const response = await api.post('/users', {
         name: values.name,
         email: values.email,
-        phone: rawPhone,
+        phone: rawPhone ? rawPhone : null,
         cpf: rawCpf,
         password: values.password,
-        bond_id: values.bond,
-        course_id: values.course,
+        bondId: values.bond,
+        courseId: values.course,
       });
 
       //todo: insert loading component
       if (response.status == 201) {
-        // Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Main'), });
+        Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Home'), });
         // const data = response.data;
 
         // _storeData('@loggedUser', {
@@ -179,23 +163,20 @@ export default function Register() {
         //   role_id: data.role_id,
         //   course_id: data.courses[0].id
         // });
-
       }
-
     } catch (error) {
       console.log(error);
 
       //mensagens de erro no cadastro
       if (error.response.status == 400) {
-        // Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message, })
+        const message = Array.isArray(error.response.data) ? error.response.data[0].message : error.response.data.message
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: message })
       }
       if (error.response.status == 500) {
-        // Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao se Cadastrar. erro Interno do Servidor!', })
+        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao se Cadastrar. Erro interno do servidor!', })
       }
     }
-
   }
-
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="always">
@@ -291,14 +272,11 @@ export default function Register() {
                 selectedValue={values.bond}
                 ref={bondRef}
                 onValueChange={(item, index) => {
-                  console.log(item, 'visitante');
+                  console.log('bondSelect - ', item)
                   setFieldValue('bond', item);
-                  if (item != '2' && item != '3' && item != '') {
-                    setFieldValue('course', '1');
-                  } else {
-                    if (values.course == '1') {
-                      setFieldValue('course', '1');
-                    }
+
+                  if (item == visitante.id || item == colaborador.id) {
+                    setFieldValue('course', semVinculo.id);
                   }
                 }}>
                 <Picker.Item label="Selecione um Vínculo" value={''} />
@@ -310,12 +288,12 @@ export default function Register() {
                 <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.bond}</Text>
               }
 
-              {values.bond[2] == '2' || values.bond[2] == '3' ? //If there is Bond selects the
+              { values.bond !== visitante.id && values.bond !== colaborador.id && values.bond !== '' ? //If there is Bond selects the */
                 <>
                   <Text style={styles.textInput}>Curso Relacionado</Text>
                   <Picker
                     selectedValue={values.course}
-                    onValueChange={(item, index) => { setFieldValue('course', item); }}>
+                    onValueChange={(item, index) => { setFieldValue('course', item); console.log('courseSelect - ', item) }}>
                     <Picker.Item label="Selecione um Curso" value={''} />
                     {courses.map((course: Icourse) => {
                       return <Picker.Item key={course.id} label={course.name} value={String(course.id)} />
@@ -366,7 +344,7 @@ export default function Register() {
           )}
         </Formik>
       </SafeAreaView>
-      {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
+      <Toast ref={(ref) => Toast.setRef(ref)} />
     </ScrollView>
   );
 }
