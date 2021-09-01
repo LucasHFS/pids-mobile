@@ -55,6 +55,7 @@ export default function NewEquipmentReserve() {
       };
       const response = await api.get('/reserves/equipments/available', config);
       setEquipments(response.data);
+      console.log(response.data);
     } catch (err) {
       Alert.alert('Falha ao carregar equipamentos!')
       // console.log(err)
@@ -155,7 +156,7 @@ export default function NewEquipmentReserve() {
         </Picker>
 
 
-        {equipments ?
+        {equipments.length != 0 ?
 
           <View style={{ padding: 20, margin: 10 }}>
             <Text>Equipamentos:</Text>
@@ -163,7 +164,8 @@ export default function NewEquipmentReserve() {
               data={equipments}
               renderItem={({ item, index, separators }) => (
                 <View style={{ padding: 20, margin: 10 }}>
-                  <EquipmentReserveTouchable reserve={item} onPress={() => { }} />
+                  {/* onPress={() => { }} */}
+                  <EquipmentReserveTouchable reserve={item} />
                 </View>
               )}
             />
