@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert, Text, View, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../hooks/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -27,12 +27,12 @@ export default function Home() {
 
   const [myReserves, setMyReserves] = useState([]);
   const { signIn } = useAuth();
-  
+
   useEffect(() => {
     const fetchReserves = async () => {
       try {
         const token = await AsyncStorage.getItem('@EReserva:token');
-    
+
         const config = {
           headers: { Authorization: `Bearer ${token}` }
         };
@@ -51,24 +51,24 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ padding: 20, margin: 10 }}>
+      <View style={{ padding: 10, margin: 10 }}>
         {/* TODO: adicionar um modal para selecionar o tipo da reserva, por enquanto vou usar o de equipamento pra teste */}
         <Button
           title="Nova Reserva"
-          onPress={() => { navigation.navigate('NewReserve') } }
+          onPress={() => { navigation.navigate('NewReserve') }}
         />
       </View>
-      
-      <View style={{ padding: 20, margin: 10 }}>
-        <Text>Minhas Reservas</Text>
+
+      <View style={{ padding: 10, margin: 5 }}>
+        <Text style={styles.textInputH1}>Minhas Reservas:</Text>
         <FlatList
           data={myReserves}
           renderItem={({ item, index, separators }) => (
-            <View style={{ padding: 20, margin: 10 }}>
-              { 
-                item.equipment ? <EquipmentReserveTouchable reserve={item} onPress={() => {} } /> : 
-                  item.room ? <RoomReserveTouchable reserve={item}  onPress={() => {} } /> : 
-                    item.sport_court ? <SportCourtReserveTouchable reserve={item}  onPress={() => {} } /> : null
+            <View style={{ padding: 8, margin: 2 }}>
+              {
+                item.equipment ? <EquipmentReserveTouchable reserve={item} onPress={() => { }} /> :
+                  item.room ? <RoomReserveTouchable reserve={item} onPress={() => { }} /> :
+                    item.sport_court ? <SportCourtReserveTouchable reserve={item} onPress={() => { }} /> : null
               }
             </View>
           )}
@@ -77,4 +77,18 @@ export default function Home() {
 
     </View>
   );
+
+
 }
+
+const styles = StyleSheet.create({
+  textInputH1: {
+    paddingLeft: 13,
+    fontWeight: 'bold',
+    fontSize: 15
+  },
+  textInputH2: {
+    fontWeight: 'bold',
+    fontSize: 12
+  },
+});

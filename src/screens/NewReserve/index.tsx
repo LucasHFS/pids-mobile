@@ -32,17 +32,19 @@ export default function NewReserve() {
 
       <View style={{ padding: 20, width: 200, margin: 10 }}>
         <Button
-          title="Reservas de Salas"
-          onPress={() => navigation.navigate('RoomReserve')}
+          title="Reservas de Quadras"
+          onPress={() => navigation.navigate('SportCourtReserve')}
         />
       </View>
 
       <View style={{ padding: 20, width: 200, margin: 10 }}>
         <Button
-          title="Reservas de Quadras"
-          onPress={() => navigation.navigate('SportCourtReserve')}
+          title="Reservas de Salas"
+          onPress={() => navigation.navigate('RoomReserve')}
         />
       </View>
+
+
     </View>
   );
 }

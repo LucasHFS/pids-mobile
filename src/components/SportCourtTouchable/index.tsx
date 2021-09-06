@@ -3,17 +3,20 @@ import { View, Text, StyleSheet } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 
 // @ts-ignore
-const EquipmentReserveTouchable = ({ reserve, onPress }) => {
+const SportCourtTouchable = ({ reserve, onPress }) => {
   return (
     <TouchableHighlight
+      activeOpacity={0.6}
+      underlayColor="#DDDDDD"
       key={reserve.id}
       onPress={() => onPress()}
     >
       <View style={styles.container}>
-        <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {reserve.status || ''}</Text></Text>
-        <Text style={styles.textInput2}>Equip:<Text style={styles.textInput3}> {reserve.equipment ? reserve.equipment.name : ''}</Text></Text>
+        <Text style={styles.textInput2}> <Text style={styles.textInput3}>Nome: {reserve ? reserve.name : ''}</Text></Text>
+        <Text style={styles.textInput2}> <Text style={styles.textInput3}>Descrição: {reserve.description || ''}</Text></Text>
+
       </View>
-    </TouchableHighlight>
+    </TouchableHighlight >
   )
 };
 
@@ -34,7 +37,6 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 12
   },
-
 });
 
-export default EquipmentReserveTouchable;
+export default SportCourtTouchable;
