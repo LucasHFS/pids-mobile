@@ -3,6 +3,7 @@ import api from '../services/api';
 import AsyncStorage from '@react-native-community/async-storage'
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 interface User {
   id: string;
@@ -63,14 +64,13 @@ const AuthProvider: React.FC = ({ children }) => {
       password,
     });
 
-    console.log(response.data); 
     const { token, user } = response.data;
 
     await AsyncStorage.multiSet([
       ['@EReserva:token', token],
       ['@EReserva:user', JSON.stringify(user)]
     ]);
-    api.defaults.headers.authorization = `Bearer ${token}`;
+    // api.defaults.headers.authorization = `Bearer ${token}`;
 
     setData({ token, user });
   }, []);

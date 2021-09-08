@@ -53,4 +53,6 @@ const AppRoutes: React.FC = () => (
   </Stack.Navigator>
 );
 
-export default AppRoutes;
+export { Main };
+
+export default AppRoutes

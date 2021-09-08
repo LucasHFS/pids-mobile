@@ -43,7 +43,7 @@ export default function Settings() {
             />
           }
           title=" Sair"
-          onPress={() => { signOut() }}
+          onPress={() => { signOut(); navigation.navigate('Login') }}
         />
       </View>
     </View>

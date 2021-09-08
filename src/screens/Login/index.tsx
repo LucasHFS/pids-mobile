@@ -43,20 +43,21 @@ export default function Login() {
             cpf: '',
             password: ''
           }}
-          onSubmit={async (values) => {
+          onSubmit={(values) => {
             values.cpf = values.cpf.match(/\d+/g)!.join('');
-            console.log(values);
-            try {
-              await signIn({
+              signIn({
                 cpf: values.cpf,
                 password: values.password,
-              });
-            } catch (err) {
-              console.log(err)
-              console.log(err.body)
-              Alert.alert('Combinação de Login e senha incorreta!');
-            }
-
+              }).then(res=>{
+                navigation.navigate('Main')
+              }).catch(err=>{
+                console.log(err)
+                if(err.toString() === 'Error: Request failed with status code 401'){
+                  Alert.alert('Combinação de Login e senha incorreta!');
+                } else {
+                  Alert.alert('Erro inesperado aconteceu!');
+                }
+              })
           }}
           validationSchema={yup.object().shape({
             cpf: yup

@@ -15,6 +15,7 @@ import { isValidCpf } from '../../utils/validations';
 
 import api from '../../services/api';
 import { StatusBar } from 'expo-status-bar';
+import { useAuth } from '../../hooks/auth';
 
 interface Ivalues {
   name: string; email: string; cpf: string; phone: string; bond: string; course: string; password: string; password_confirmation: string;
@@ -49,7 +50,7 @@ export default function Register() {
   const passwordRef = useRef(null);
   const password_confirmationRef = useRef(null);
 
-
+  const { signIn } = useAuth();
 
   useEffect(() => {
     const getBonds = (bonds) => {
@@ -66,7 +67,7 @@ export default function Register() {
         getBonds(response.data)
       } catch (err) {
         Alert.alert('Falha ao Carregar Vínculos')
-        // console.log(err)
+        console.log(err)
       }
     }
 
@@ -78,7 +79,7 @@ export default function Register() {
         setSemVinculo(semVinculo)
       } catch (err) {
         Alert.alert('Falha ao Carregar Cursos')
-        // console.log(err)
+        console.log(err)
       }
     }
 
@@ -150,19 +151,11 @@ export default function Register() {
 
       //todo: insert loading component
       if (response.status == 201) {
-        Toast.show({ type: 'success', position: 'bottom', text1: 'Sucesso', text2: 'Registro Concluído', visibilityTime: 3000, onHide: () => navigation.navigate('Home'), });
-        // const data = response.data;
-
-        // _storeData('@loggedUser', {
-        //   id: data.id,
-        //   name: data.name,
-        //   email: data.email,
-        //   cpf: data.cpf,
-        //   phone: data.phone,
-        //   bond_id: data.bond_id,
-        //   role_id: data.role_id,
-        //   course_id: data.courses[0].id
-        // });
+        await signIn({
+          // @ts-ignore
+          cpf: rawCpf,
+          password: values.password,
+        });
       }
     } catch (error) {
       console.log(error);
