@@ -136,6 +136,7 @@ export default function NewEquipmentReserve() {
       if (response.data.status === 'accepted') {
         Alert.alert('Reserva Confirmada!');
         setModalVisible(!modalVisible);
+        navigation.navigate("Main");
       }
 
     } catch (err) {

@@ -36,7 +36,7 @@ export default function Home() {
         const config = {
           headers: { Authorization: `Bearer ${token}` }
         };
-        const response = await api.get('reserves', config);
+        const response = await api.get('my_reserves', config);
         setMyReserves(response.data);
       } catch (err) {
         Alert.alert('Falha ao Carregar Reservas')

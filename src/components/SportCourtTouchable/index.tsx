@@ -14,7 +14,6 @@ const SportCourtTouchable = ({ reserve, onPress }) => {
       <View style={styles.container}>
         <Text style={styles.textInput2}> <Text style={styles.textInput3}>Nome: {reserve ? reserve.name : ''}</Text></Text>
         <Text style={styles.textInput2}> <Text style={styles.textInput3}>Descrição: {reserve.description || ''}</Text></Text>
-
       </View>
     </TouchableHighlight >
   )
