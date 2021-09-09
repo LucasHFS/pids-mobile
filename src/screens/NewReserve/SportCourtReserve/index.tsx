@@ -115,6 +115,8 @@ export default function SportCourtReserve() {
 
 
       const response = await api.get('/reserves/sportcourts/day-availability', config);
+      console.log("day-availability")
+      console.log(response.data);
       setHour(response.data);
 
     } catch (err) {
@@ -151,9 +153,6 @@ export default function SportCourtReserve() {
     date.setHours(hourMinute[0]);
     date.setMinutes(hourMinute[1]);
 
-    console.log("date");
-
-    console.log(date.getTime());
 
     sendReserveSportCourt(date.getTime())
 
@@ -166,16 +165,16 @@ export default function SportCourtReserve() {
 
       const config = {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          sport_court_id: sportCourtModal.id,
-          start_at: data,
-        }
       };
 
+      const obj = {
+        sport_court_id: sportCourtModal.id,
+        starts_at: data,
+      }
 
-      const response = await api.post('/reserves/sportcourts', config);
-      if(response.data.status ==="accepted"){
-        Alert.alert("Reserva solicitada!");
+      const response = await api.post('/reserves/sportcourts', obj, config);
+      if (response.data.status === "accepted") {
+        Alert.alert("Reserva da quadra solicitada!");
       }
 
     } catch (err) {
