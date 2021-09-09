@@ -18,7 +18,7 @@ interface User {
 interface AuthState {
   token: string;
   // user: Record<string, unknown>; // object
-  user: User;
+  user: User | null;
 }
 
 interface SingInCredentials {
@@ -28,7 +28,7 @@ interface SingInCredentials {
 
 interface AuthContextData {
   // user: Record<string, unknown>;
-  user: User;
+  user: User | null;
   signIn(credentials: SingInCredentials): Promise<void>;
   signOut(): void;
   updateUser(user: User): void;
@@ -52,7 +52,11 @@ const AuthProvider: React.FC = ({ children }) => {
       ]);
 
       if (token[1] && user[1]) {
-        setData({ token: token[1], user: JSON.parse(user[1]) })
+        if(user[1] === undefined){
+          setData({ token: token[1], user: null })
+        } else {
+          setData({ token: token[1], user: JSON.parse(user[1]) })
+        }
       }
     }
     loadStoragedData();

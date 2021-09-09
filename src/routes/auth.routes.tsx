@@ -9,8 +9,9 @@ import { useAuth } from '../hooks/auth';
 const Stack = createStackNavigator();
 const AuthRoute: React.FC = () => {
   const { user } = useAuth();
+
   return (
-    <Stack.Navigator initialRouteName={ user ? 'Main' : 'Login' }>
+    <Stack.Navigator initialRouteName={ user === null ? 'Login' : 'Main' }>
 
       <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
       <Stack.Screen name="Register" options={{ title: 'Cadastro' }} component={Register} />
