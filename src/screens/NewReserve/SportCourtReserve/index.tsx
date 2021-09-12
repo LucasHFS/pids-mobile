@@ -234,7 +234,6 @@ export default function SportCourtReserve() {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
           setModalVisible(!modalVisible);
         }}
       >
@@ -381,18 +380,16 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   centeredView: {
+    justifyContent:'center',
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     marginTop: 22
   },
   modalView: {
-    justifyContent: 'flex-start',
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
+    alignItems: 'flex-start',
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

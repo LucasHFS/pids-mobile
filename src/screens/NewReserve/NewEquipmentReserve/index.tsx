@@ -157,7 +157,6 @@ export default function NewEquipmentReserve() {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
           setModalVisible(!modalVisible);
         }}
       >
@@ -282,16 +281,14 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     marginTop: 22
   },
   modalView: {
-    justifyContent: 'flex-start',
-    margin: 20,
+    alignItems: "flex-start",
+    margin: 50,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

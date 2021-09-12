@@ -313,7 +313,7 @@ export default function NewLabReserve() {
       {rooms.length !== 0 ?
 
         <View style={styles.containerCenter}>
-          <Text style={styles.textInput}>Listagem de salas?</Text>
+          <Text style={styles.textInput}>Listagem de salas:</Text>
           <FlatList
             data={rooms}
             renderItem={({ item, index, separators }) => (
@@ -411,16 +411,15 @@ const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     marginTop: 22
   },
   modalView: {
-    justifyContent: 'flex-start',
-    margin: 20,
+    alignItems: "flex-start",
+
+    margin: 50,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
