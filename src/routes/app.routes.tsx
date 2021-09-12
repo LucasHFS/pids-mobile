@@ -12,6 +12,7 @@ import SportCourtReserve from '../screens/NewReserve/SportCourtReserve';
 import RoomReserve from '../screens/NewReserve/RoomReserve';
 import Room from '../screens/NewReserve/RoomReserve/Room';
 import Lab from '../screens/NewReserve/RoomReserve/Lab-auditorium';
+import Notifications from '../screens/notifications';
 
 const StackSettings = createStackNavigator();
 const SettingsScreens: React.FC = () => (
@@ -43,6 +44,7 @@ const Main: React.FC = () => (
     }}
   >
     <Tab.Screen name="Home" component={PrincipalScreens} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'home'} size={size} color={color} /> }} />
+    <Tab.Screen name="Notifications" component={Notifications} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'notifications'} size={size} color={color} /> }} />
     <Tab.Screen name="Configurações" component={SettingsScreens} options={{ tabBarIcon: ({ color, size }) => <Ionicons name={'settings'} size={size} color={color} /> }} />
 
   </Tab.Navigator>

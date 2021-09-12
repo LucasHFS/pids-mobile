@@ -151,10 +151,12 @@ export default function Register() {
 
       //todo: insert loading component
       if (response.status == 201) {
-        await signIn({
+        signIn({
           // @ts-ignore
           cpf: rawCpf,
           password: values.password,
+        }).then(()=>{
+          navigation.navigate('Main')
         });
       }
     } catch (error) {

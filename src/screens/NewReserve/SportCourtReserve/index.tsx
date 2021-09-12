@@ -13,22 +13,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import SportCourtTouchable from '../../../components/SportCourtTouchable/index';
 
 import { hourArrayAvailable } from '../../../constants/hourArraysAvailable';
-import { split } from 'lodash';
-
-
-
-interface Equipment {
-  id: number
-  name: string
-  description: string
-}
 
 interface IarrayHour {
   hour: number,
   minute: number,
   available: boolean
 }
-
 
 export default function SportCourtReserve() {
   const navigation = useNavigation();
@@ -104,6 +94,7 @@ export default function SportCourtReserve() {
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
 
+      
       const config = {
         headers: { Authorization: `Bearer ${token}` },
         params: {
@@ -111,16 +102,15 @@ export default function SportCourtReserve() {
           sport_court_id: sportCourtModal.id,
         }
       };
-
-
+      console.log('data', config)
+      
+      
       const response = await api.get('/reserves/sportcourts/day-availability', config);
-      console.log("day-availability")
-      console.log(response.data);
       setHour(response.data);
 
     } catch (err) {
       Alert.alert('Falha ao carregar quadras!')
-      // console.log(err)
+      console.log(err)
     }
   }
 
@@ -133,9 +123,6 @@ export default function SportCourtReserve() {
     showMode('date');
   };
 
-  const showTimepicker = () => {
-    showMode('time');
-  };
   const loadSportCourt = (time: IarrayHour) => {
 
     const hourMinute = time.split(':');
@@ -148,13 +135,10 @@ export default function SportCourtReserve() {
       minute: hourMinute[1] //posição 1 encontra-se os minutos 
     }
 
-
     date.setHours(hourMinute[0]);
     date.setMinutes(hourMinute[1]);
 
-
     sendReserveSportCourt(date.getTime())
-
   };
 
   const sendReserveSportCourt = async (data) => {
@@ -178,7 +162,7 @@ export default function SportCourtReserve() {
 
     } catch (err) {
       Alert.alert('Falha ao reservar quadra!')
-      // console.log(err)
+      console.log(err)
     }
   }
 
@@ -203,7 +187,6 @@ export default function SportCourtReserve() {
   };
 
   const createReserve = async (equipment) => {
-
 
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
@@ -246,8 +229,6 @@ export default function SportCourtReserve() {
 
   return (
     <View style={{ flex: 1 }}>
-
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -257,7 +238,6 @@ export default function SportCourtReserve() {
           setModalVisible(!modalVisible);
         }}
       >
-
 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
@@ -286,7 +266,6 @@ export default function SportCourtReserve() {
         </View>
 
       </Modal>
-
 
       {/* 
         <View>
@@ -321,8 +300,6 @@ export default function SportCourtReserve() {
         </View>
         :
         null}
-
-
 
       {/* {console.log(sportCourtModal)} */}
 

@@ -52,11 +52,10 @@ const AuthProvider: React.FC = ({ children }) => {
       ]);
 
       if (token[1] && user[1]) {
-        if(user[1] === undefined){
-          setData({ token: token[1], user: null })
-        } else {
-          setData({ token: token[1], user: JSON.parse(user[1]) })
-        }
+        setData({ token: token[1], user: JSON.parse(user[1]) })
+      } else {
+        // @ts-ignore
+        setData({ user: null })
       }
     }
     loadStoragedData();
@@ -80,10 +79,11 @@ const AuthProvider: React.FC = ({ children }) => {
   }, []);
 
   const signOut = useCallback(async () => {
+
     await AsyncStorage.multiRemove(['@EReserva:token',
       '@EReserva:user']);
 
-    setData({} as AuthState);
+    setData({ user:null } as AuthState);
     Alert.alert('Logout Realizado com sucesso!');
   }, []);
 
