@@ -5,14 +5,15 @@ import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../../../services/api';
+import api from '../../../../services/api';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-community/picker'
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import SportCourtTouchable from '../../../components/SportCourtTouchable/index';
 
-import { hourArrayAvailable } from '../../../constants/hourArraysAvailable';
+import RoomTouchable from '../../../../components/RoomTouchable/index';
+
+import { hourArrayAvailable } from '../../../../constants/hourArraysAvailable';
 import { split } from 'lodash';
 
 
@@ -30,17 +31,17 @@ interface IarrayHour {
 }
 
 
-export default function SportCourtReserve() {
+export default function NewLabReserve() {
   const navigation = useNavigation();
 
 
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [hour, setHour] = useState([]);
-  const [sportCourts, setSportCourts] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [show, setShow] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [sportCourtModal, setSportCourtModal] = useState({});
+  const [roomModal, setRoomModal] = useState({});
 
 
   // const fetchSportCourts = async (data) => {
@@ -79,7 +80,7 @@ export default function SportCourtReserve() {
     }
 
     if (event.type === "dimissed") { //cancelar do datepicker
-      setSportCourtModal({});
+      setRoomModal({});
     }
 
 
@@ -108,18 +109,18 @@ export default function SportCourtReserve() {
         headers: { Authorization: `Bearer ${token}` },
         params: {
           date: data,
-          sport_court_id: sportCourtModal.id,
+          room_id: roomModal.id,
         }
       };
 
 
-      const response = await api.get('/reserves/sportcourts/day-availability', config);
+      const response = await api.get('/reserves/rooms/day-availability', config);
       console.log("day-availability")
       console.log(response.data);
       setHour(response.data);
 
     } catch (err) {
-      Alert.alert('Falha ao carregar quadras!')
+      Alert.alert('Falha ao carregar salas!')
       // console.log(err)
     }
   }
@@ -136,28 +137,22 @@ export default function SportCourtReserve() {
   const showTimepicker = () => {
     showMode('time');
   };
-  const loadSportCourt = (time: IarrayHour) => {
+  const loadRoom = (time: IarrayHour) => {
 
     const hourMinute = time.split(':');
 
     setHour(time);
-
-    const data = {
-      date,
-      hour: hourMinute[0], //posição 0 encontra-se a hora
-      minute: hourMinute[1] //posição 1 encontra-se os minutos 
-    }
 
 
     date.setHours(hourMinute[0]);
     date.setMinutes(hourMinute[1]);
 
 
-    sendReserveSportCourt(date.getTime())
+    sendReserveRoom(date.getTime())
 
   };
 
-  const sendReserveSportCourt = async (data) => {
+  const sendReserveRoom = async (data) => {
 
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
@@ -167,17 +162,23 @@ export default function SportCourtReserve() {
       };
 
       const obj = {
-        sport_court_id: sportCourtModal.id,
+        room_id: roomModal.id,
         starts_at: data,
       }
 
-      const response = await api.post('/reserves/sportcourts', obj, config);
+      const response = await api.post('/reserves/rooms', obj, config);
       if (response.data.status === "accepted") {
-        Alert.alert("Reserva da quadra solicitada!");
+        Alert.alert("Reserva da sala solicitada!");
+        navigation.navigate("Home");
+      }
+
+      if (response.data.status === "pending") {
+        Alert.alert("Aguarde a confirmação da reserva!");
+        navigation.navigate("Home");
       }
 
     } catch (err) {
-      Alert.alert('Falha ao reservar quadra!')
+      Alert.alert('Falha ao reservar quadra!');
       // console.log(err)
     }
   }
@@ -189,8 +190,13 @@ export default function SportCourtReserve() {
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
-      const response = await api.get('/sportcourts', config);
-      setSportCourts(response.data);
+      const response = await api.get('/rooms', config);
+
+      const result = response.data.filter(room => {
+        return room.type === 'lab' || room.type === 'auditorium'
+      });
+
+      setRooms(result);
 
     }
     fetchSportCourts();
@@ -199,16 +205,16 @@ export default function SportCourtReserve() {
 
   const ShowModal = (item) => {
     setModalVisible(true);
-    setSportCourtModal(item);
+    setRoomModal(item);
   };
 
-  const createReserve = async (equipment) => {
+  const createReserve = async (room) => {
 
 
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
-      const sportCourt = {
-        equipment_id: equipment.id,
+      const obj = {
+        room_id: room.id,
         starts_at: date,
       }
 
@@ -217,7 +223,7 @@ export default function SportCourtReserve() {
       const config = {
         headers: { Authorization: `Bearer ${token}` }
       };
-      const response = await api.post('/reserves/equipments', equip, config);
+      const response = await api.post('/reserves/equipments', obj, config);
       // console.log(response.data)
       if (response.data.status === 'accepted') {
         Alert.alert('Reserva Confirmada!');
@@ -232,14 +238,14 @@ export default function SportCourtReserve() {
     }
   }
 
-  const selectSportCourt = () => {
+  const selectRoom = () => {
     setModalVisible(!modalVisible);
-    setSportCourtModal(sportCourtModal);
+    setRoomModal(roomModal);
     showDatepicker();
   };
 
-  const cancelSelectSportCourt = () => {
-    setSportCourtModal({});
+  const cancelSelectRoom = () => {
+    setRoomModal({});
     setModalVisible(!modalVisible);
   };
 
@@ -253,7 +259,6 @@ export default function SportCourtReserve() {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
           setModalVisible(!modalVisible);
         }}
       >
@@ -261,23 +266,23 @@ export default function SportCourtReserve() {
 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Equipamento:{sportCourtModal.name ? sportCourtModal.name : ''}</Text>
-            <Text style={styles.modalText}>Descrição:{sportCourtModal.description ? sportCourtModal.description : ''}</Text>
-            {/* <Text style={styles.modalText}>Horário da Reserva: {hour}</Text> 
-             <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text> 
-            <Text style={styles.modalText}>Data da Reserva</Text> */}
 
+            <Text style={styles.modalText}>Sala: {roomModal.name ? roomModal.name : ''}</Text>
+            <Text style={styles.modalText}>Tipo: {roomModal.type ? roomModal.type : ''}</Text>
+            <Text style={styles.modalText}>Descrição:{roomModal.description ? roomModal.description : ''}</Text>
+            <Text style={styles.modalText}>Horário da Reserva: {hour}</Text>
+            <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text>
 
             <View style={styles.buttonModal}>
               <Pressable
                 style={[styles.button, styles.buttonConfirm]}
-                onPress={() => { selectSportCourt() }}
+                onPress={() => { selectRoom() }}
               >
                 <Text style={styles.textStyle}>Selecionar</Text>
               </Pressable>
               <Pressable
                 style={[styles.button, styles.buttonClose]}
-                onPress={() => { cancelSelectSportCourt() }}
+                onPress={() => { cancelSelectRoom() }}
               >
                 <Text style={styles.textStyle}>Cancelar</Text>
               </Pressable>
@@ -305,16 +310,16 @@ export default function SportCourtReserve() {
       )}
 
 
-      {sportCourts.length !== 0 ?
+      {rooms.length !== 0 ?
 
         <View style={styles.containerCenter}>
-          <Text style={styles.textInput}>Listagem de quadras esportivas:</Text>
+          <Text style={styles.textInput}>Listagem de salas?</Text>
           <FlatList
-            data={sportCourts}
+            data={rooms}
             renderItem={({ item, index, separators }) => (
               <View style={{ padding: 20, margin: 1 }}>
                 {/* onPress={() => { }} */}
-                <SportCourtTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
               </View>
             )}
           />
@@ -337,15 +342,15 @@ export default function SportCourtReserve() {
       } */}
 
 
-      {console.log(hour)}
+      {/* {console.log(hour)} */}
 
 
       {hourArrayAvailable.length !== 0 ? (
         <View style={{ paddingLeft: 20 }}>
-          <Text style={styles.textInput}>Horário</Text>
+          <Text style={styles.textInput}>Horário: </Text>
           <Picker
             selectedValue={hourArrayAvailable}
-            onValueChange={(item, index) => { loadSportCourt(item) }}
+            onValueChange={(item, index) => { loadRoom(item) }}
           >
             <Picker.Item label="Selecione um Horário" value={''} />
             {hourArrayAvailable.map((hour: IarrayHour) => {

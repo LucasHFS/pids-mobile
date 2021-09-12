@@ -51,6 +51,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.divider} />
       <View style={{ padding: 10, margin: 10 }}>
         {/* TODO: adicionar um modal para selecionar o tipo da reserva, por enquanto vou usar o de equipamento pra teste */}
         <Button
@@ -73,9 +74,12 @@ export default function Home() {
             </View>
           )}
         />
+        <View style={styles.divider} />
+
       </View>
 
     </View>
+
   );
 
 
@@ -90,5 +94,8 @@ const styles = StyleSheet.create({
   textInputH2: {
     fontWeight: 'bold',
     fontSize: 12
+  },
+  divider: {
+    padding: 10
   },
 });

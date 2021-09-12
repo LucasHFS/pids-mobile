@@ -10,6 +10,8 @@ import Settings from '../../src/screens/Settings';
 import AccountSettings from '../../src/screens/AccountSettings';
 import SportCourtReserve from '../screens/NewReserve/SportCourtReserve';
 import RoomReserve from '../screens/NewReserve/RoomReserve';
+import Room from '../screens/NewReserve/RoomReserve/Room';
+import Lab from '../screens/NewReserve/RoomReserve/Lab-auditorium';
 
 const StackSettings = createStackNavigator();
 const SettingsScreens: React.FC = () => (
@@ -26,6 +28,8 @@ const PrincipalScreens: React.FC = () => (
     <Principal.Screen name="NewReserve" options={{ title: 'Nova Reserva', headerShown: false }} component={NewReserve} />
     <Principal.Screen name="NewEquipmentReserve" options={{ title: 'Nova Reserva de Equipamentos', headerShown: false }} component={NewEquipmentReserve} />
     <Principal.Screen name="RoomReserve" options={{ title: 'Reserva de Salas', headerShown: false }} component={RoomReserve} />
+    <Principal.Screen name="Room" options={{ title: 'Salas', headerShown: false }} component={Room} />
+    <Principal.Screen name="Lab" options={{ title: 'Salas', headerShown: false }} component={Lab} />
     <Principal.Screen name="SportCourtReserve" options={{ title: 'Reserva de Quadras', headerShown: false }} component={SportCourtReserve} />
   </Principal.Navigator>
 );

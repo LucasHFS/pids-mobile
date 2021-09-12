@@ -6,6 +6,8 @@ import { TouchableHighlight } from 'react-native-gesture-handler';
 const EquipmentReserveTouchable = ({ reserve, onPress }) => {
   return (
     <TouchableHighlight
+      activeOpacity={0.6}
+      underlayColor="#DDDDDD"
       key={reserve.id}
       onPress={() => onPress()}
     >
@@ -25,6 +27,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     backgroundColor: '#87BDFA',
+
   },
   textInput2: {
     fontWeight: 'bold',

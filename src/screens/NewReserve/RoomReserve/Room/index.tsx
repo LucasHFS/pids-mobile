@@ -5,15 +5,16 @@ import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../../../services/api';
+import api from '../../../../services/api';
 import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-community/picker'
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import EquipmentTouchable from '../../../components/EquipmentTouchable/index';
+import RoomTouchable from '../../../../components/RoomTouchable/index';
 
-import { startHourArray } from '../../../constants/hourArrays';
+import { startHourArray } from '../../../../constants/hourArrays';
 import { split } from 'lodash';
+import { array } from 'yup/lib/locale';
 
 
 
@@ -29,20 +30,20 @@ interface IarrayHour {
 }
 
 
-export default function NewEquipmentReserve() {
+export default function NewRoomReserve() {
   const navigation = useNavigation();
 
 
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [hour, setHour] = useState({});
-  const [equipments, setEquipments] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [show, setShow] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [equipmentModal, setEquipmentModal] = useState({});
+  const [roomModal, setRoomModal] = useState({});
 
 
-  const fetchEquipments = async (data) => {
+  const fetchRooms = async (data) => {
 
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
@@ -55,22 +56,35 @@ export default function NewEquipmentReserve() {
           minute: data.minute
         }
       };
-      const response = await api.get('/reserves/equipments/available', config);
-      setEquipments(response.data);
+      const response = await api.get('/reserves/rooms/available', config);
+
+      const result = response.data.filter(room => {
+        return room.type === 'room'
+      });
+
+      setRooms(result);
+
 
     } catch (err) {
-      Alert.alert('Falha ao carregar equipamentos!')
+      Alert.alert('Falha ao carregar salas!')
       // console.log(err)
     }
   }
 
   const onChange = (event, selectedDate) => {
+
+    console.log(selectedDate)
     // setHour({});
 
-    if (event.type !== "dismissed") {
+    if (event.type === "dismissed") {
+      setRooms([]);
+    }
+
+    if (event.type === "set") {
       setDate(selectedDate.getTime());
 
     }
+
     setShow(false);
 
     // setShow(Platform.OS === 'ios');
@@ -91,7 +105,7 @@ export default function NewEquipmentReserve() {
   const showTimepicker = () => {
     showMode('time');
   };
-  const loadEquipment = (time: IarrayHour) => {
+  const loadRoom = (time: IarrayHour) => {
 
     const hourMinute = time.split(':');
 
@@ -103,7 +117,7 @@ export default function NewEquipmentReserve() {
       minute: hourMinute[1] //posição 1 encontra-se os minutos 
     }
 
-    fetchEquipments(data)
+    fetchRooms(data)
 
   };
 
@@ -113,34 +127,42 @@ export default function NewEquipmentReserve() {
 
   const ShowModal = (item) => {
     setModalVisible(true);
-    setEquipmentModal(item);
+    setRoomModal(item);
   };
 
-  const createReserve = async (equipment) => {
+  const createReserve = async (room) => {
+    console.log(date)
+    console.log(room.id)
 
 
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
-      const equip = {
-        equipment_id: equipment.id,
+      const obj = {
+        room_id: room.id,
         starts_at: date,
       }
-
 
 
       const config = {
         headers: { Authorization: `Bearer ${token}` }
       };
-      const response = await api.post('/reserves/equipments', equip, config);
-      console.log(response.data)
+      const response = await api.post('/reserves/rooms', obj, config);
+      console.log(response.data);
       if (response.data.status === 'accepted') {
         Alert.alert('Reserva Confirmada!');
         setModalVisible(!modalVisible);
         navigation.navigate("Home");
       }
 
+      // if (response.data.status === 'pending') {
+      //   Alert.alert('Aguarde a confirmação da reserva!');
+      //   setModalVisible(!modalVisible);
+      //   navigation.navigate("Home");
+      // }
+
     } catch (err) {
       Alert.alert('Falha ao realizar Reserva!')
+      console.log(err)
       setModalVisible(!modalVisible);
 
       // console.log(err)
@@ -157,21 +179,22 @@ export default function NewEquipmentReserve() {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
+          // Alert.alert("Modal has been closed.");
           setModalVisible(!modalVisible);
         }}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Equipamento:{equipmentModal.name ? equipmentModal.name : ''}</Text>
-            <Text style={styles.modalText}>Descrição:{equipmentModal.description ? equipmentModal.description : ''}</Text>
+            <Text style={styles.modalText}>Sala: {roomModal.name ? roomModal.name : ''}</Text>
+            <Text style={styles.modalText}>Tipo: {roomModal.type ? roomModal.type : ''}</Text>
+            <Text style={styles.modalText}>Descrição:{roomModal.description ? roomModal.description : ''}</Text>
             <Text style={styles.modalText}>Horário da Reserva: {hour}</Text>
             <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text>
 
             <View style={styles.buttonModal}>
               <Pressable
                 style={[styles.button, styles.buttonConfirm]}
-                onPress={() => { createReserve(equipmentModal) }}
+                onPress={() => { createReserve(roomModal) }}
               >
                 <Text style={styles.textStyle}>Confirmar</Text>
               </Pressable>
@@ -213,7 +236,7 @@ export default function NewEquipmentReserve() {
         <Text style={styles.textInput}>Horário</Text>
         <Picker
           selectedValue={hour}
-          onValueChange={(item, index) => { loadEquipment(item) }}>
+          onValueChange={(item, index) => { loadRoom(item) }}>
           <Picker.Item label="Selecione um Horário" value={''} />
           {startHourArray.map((hour: IarrayHour) => {
             return <Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />
@@ -223,16 +246,16 @@ export default function NewEquipmentReserve() {
         <View style={styles.divider}></View>
 
 
-        {equipments.length !== 0 ?
+        {rooms.length !== 0 ?
 
           <View>
-            <Text style={styles.textInput}>Equipamentos disponíveis:</Text>
+            <Text style={styles.textInput}>Salas disponíveis:</Text>
             <FlatList
-              data={equipments}
+              data={rooms}
               renderItem={({ item, index, separators }) => (
-                <View style={{ padding: 20, margin: 10 }}>
+                <View style={{ padding: 10, margin: 5 }}>
                   {/* onPress={() => { }} */}
-                  <EquipmentTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                  <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
                 </View>
               )}
             />
