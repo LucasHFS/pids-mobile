@@ -12,6 +12,9 @@ import RoomReserveTouchable from '../../components/RoomReserveTouchable';
 import EquipmentReserveTouchable from '../../components/EquipmentReserveTouchable';
 import { differenceInDays } from 'date-fns/esm';
 
+
+import { format } from 'date-fns';
+
 export default function Home() {
 
   const [myReserves, setMyReserves] = useState([]);
@@ -30,7 +33,14 @@ export default function Home() {
       console.log(err)
     }
   }
-
+  const formatNotificationHour = (dirtyDate: string) => {
+    const date = new Date(dirtyDate);
+    return `${format(date, 'H:mm')}`
+  }
+  const formatNotificationDate = (dirtyDate: string) => {
+    const date = new Date(dirtyDate);
+    return `${format(date, 'd/M/yyyy')}`
+  }
   useEffect(() => {
     fetchReserves();
   }, []);
@@ -62,7 +72,6 @@ export default function Home() {
         headers: { Authorization: `Bearer ${token}` }
       };
 
-      console.log(modalReserve.id)
       await api.delete(`/reserves/${modalReserve.id}`, config);
       cancelSelectReserve()
       Alert.alert('Reserva Cancelada')
@@ -88,14 +97,39 @@ export default function Home() {
 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-          {
-            modalReserve.equipment ? <EquipmentReserveTouchable reserve={modalReserve} onPress={() => {}} /> :
-            modalReserve.room ? <RoomReserveTouchable reserve={modalReserve} onPress={() => {}} /> :
-            modalReserve.sport_court ? <SportCourtReserveTouchable reserve={modalReserve} onPress={() => {}} /> : null
-          }
+            {/* {console.log(modalReserve.sport_court)} */}
+            {
+              modalReserve.equipment ? (
+
+                <View style={styles.container}>
+                  <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {modalReserve.status || ''}</Text></Text>
+                  <Text style={styles.textInput2}>Equipamento:<Text style={styles.textInput3}> {modalReserve.equipment ? modalReserve.equipment.name : ''}</Text></Text>
+                  <Text style={styles.textInput2}>Horário:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationHour(modalReserve.starts_at) : ''}</Text></Text>
+                  <Text style={styles.textInput2}>Data:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationDate(modalReserve.starts_at) : ''}</Text></Text>
+                  <Text style={styles.textInput2}>Descrição:<Text style={styles.textInput3}> {modalReserve.equipment ? modalReserve.equipment.description : ''}</Text></Text>
+                </View>) : (
+                modalReserve.room ?
+                  <View style={styles.container}>
+                    <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {modalReserve.status === 'accepted' ? 'Aprovada' : (modalReserve.status === 'denied' ? 'Negada' : (modalReserve.status === 'pending' ? 'Pendente' : '')) || ''}</Text></Text>
+                    <Text style={styles.textInput2}>Sala:<Text style={styles.textInput3}> {modalReserve.room ? modalReserve.room.name : ''}</Text></Text>
+                    <Text style={styles.textInput2}>Horário:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationHour(modalReserve.starts_at) : ''}</Text></Text>
+                    <Text style={styles.textInput2}>Data:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationDate(modalReserve.starts_at) : ''}</Text></Text>
+                    <Text style={styles.textInput2}>Descrição:<Text style={styles.textInput3}> {modalReserve.room ? modalReserve.room.description : ''}</Text></Text>
+                  </View>
+                  :
+                  modalReserve.sport_court ?
+                    <View style={styles.container}>
+                      <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {modalReserve.status === 'accepted' ? 'Aprovada' : (modalReserve.status === 'denied' ? 'Negada' : (modalReserve.status === 'pending' ? 'Pendente' : '')) || ''}</Text></Text>
+                      <Text style={styles.textInput2}>Quadra:<Text style={styles.textInput3}> {modalReserve.sport_court ? modalReserve.sport_court.name : ''}</Text></Text>
+                      <Text style={styles.textInput2}>Horário:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationHour(modalReserve.starts_at) : ''}</Text></Text>
+                      <Text style={styles.textInput2}>Data:<Text style={styles.textInput3}> {modalReserve.starts_at ? formatNotificationDate(modalReserve.starts_at) : ''}</Text></Text>
+                      <Text style={styles.textInput2}>Descrição:<Text style={styles.textInput3}> {modalReserve.sport_court ? modalReserve.sport_court.description : ''}</Text></Text>
+                    </View>
+                    : null)
+            }
 
             <View style={styles.buttonModal}>
-              { canCancelReserve(modalReserve.starts_at) ?
+              {canCancelReserve(modalReserve.starts_at) ?
                 <Pressable
                   style={[styles.button, styles.buttonConfirm]}
                   onPress={() => { cancelReserve() }}
@@ -218,5 +252,21 @@ const styles = StyleSheet.create({
   },
   buttonModal: {
     flexDirection: 'row',
-  }
+  },
+  container: {
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    padding: 15,
+    borderRadius: 10,
+
+  },
+  textInput2: {
+    fontWeight: 'bold',
+    padding: 3,
+    fontSize: 15
+  },
+  textInput3: {
+    fontWeight: 'normal',
+    fontSize: 13
+  },
 });

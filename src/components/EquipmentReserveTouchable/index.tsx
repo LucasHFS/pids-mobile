@@ -1,9 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { format } from 'date-fns';
 
 // @ts-ignore
 const EquipmentReserveTouchable = ({ reserve, onPress }) => {
+  const formatNotificationHour = (dirtyDate: string) => {
+    const date = new Date(dirtyDate);
+    return `${format(date, 'H:mm')}`
+  }
+  const formatNotificationDate = (dirtyDate: string) => {
+    const date = new Date(dirtyDate);
+    return `${format(date, 'd/M/yyyy')}`
+  }
+
   return (
     <TouchableHighlight
       activeOpacity={0.6}
@@ -12,8 +22,11 @@ const EquipmentReserveTouchable = ({ reserve, onPress }) => {
       onPress={() => onPress()}
     >
       <View style={styles.container}>
-        <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {reserve.status || ''}</Text></Text>
-        <Text style={styles.textInput2}>Equip:<Text style={styles.textInput3}> {reserve.equipment ? reserve.equipment.name : ''}</Text></Text>
+        <Text style={styles.textInput2}>Status: <Text style={styles.textInput3}> {reserve.status === 'accepted' ? 'Aprovada' : '' || ''}</Text></Text>
+        <Text style={styles.textInput2}>Equipamento:<Text style={styles.textInput3}> {reserve.equipment ? reserve.equipment.name : ''}</Text></Text>
+        <Text style={styles.textInput2}>Horário:<Text style={styles.textInput3}> {reserve.starts_at ? formatNotificationHour(reserve.starts_at) : ''}</Text></Text>
+        <Text style={styles.textInput2}>Data:<Text style={styles.textInput3}> {reserve.starts_at ? formatNotificationDate(reserve.starts_at) : ''}</Text></Text>
+
       </View>
     </TouchableHighlight>
   )

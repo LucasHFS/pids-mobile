@@ -33,25 +33,6 @@ interface AuthContextData {
   updateUser(user: User): void;
 }
 
-const tokenValid = async (token: string):Promise<boolean> => {
-  let valid = true;
-  const config = {
-    params: {
-      token
-    }
-  };
-  
-  try{
-    const response = await api.get('sessions/verify_token', config)
-    valid = response.data.valid
-  } catch(err){
-    console.log(err)
-    valid = false;
-  }
-
-  return valid
-}
-
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 // variável inicialmente com valor vazio -> forçando {} as AuthContext
 // para remover o erro do Typescript
@@ -70,12 +51,7 @@ const AuthProvider: React.FC = ({ children }) => {
       ]);
 
       if (token[1] && user[1]) {
-        if(await tokenValid(token[1])){
-          setData({ token: token[1], user: JSON.parse(user[1]) })
-        }else {
-          // @ts-ignore
-          setData({ user: null })
-        }
+        setData({ token: token[1], user: JSON.parse(user[1]) })
       } else {
         // @ts-ignore
         setData({ user: null })

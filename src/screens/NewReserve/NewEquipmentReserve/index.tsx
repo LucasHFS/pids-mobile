@@ -55,6 +55,9 @@ export default function NewEquipmentReserve() {
           minute: data.minute
         }
       };
+
+      console.log(config);
+
       const response = await api.get('/reserves/equipments/available', config);
       setEquipments(response.data);
 

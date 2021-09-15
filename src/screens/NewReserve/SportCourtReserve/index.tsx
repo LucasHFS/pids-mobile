@@ -129,16 +129,10 @@ export default function SportCourtReserve() {
 
     setHour(time);
 
-    const data = {
-      date,
-      hour: hourMinute[0], //posição 0 encontra-se a hora
-      minute: hourMinute[1] //posição 1 encontra-se os minutos 
-    }
-
     date.setHours(hourMinute[0]);
     date.setMinutes(hourMinute[1]);
 
-    sendReserveSportCourt(date.getTime())
+    sendReserveSportCourt(date.getTime());
   };
 
   const sendReserveSportCourt = async (data) => {
@@ -185,35 +179,6 @@ export default function SportCourtReserve() {
     setModalVisible(true);
     setSportCourtModal(item);
   };
-
-  const createReserve = async (equipment) => {
-
-    try {
-      const token = await AsyncStorage.getItem('@EReserva:token');
-      const sportCourt = {
-        equipment_id: equipment.id,
-        starts_at: date,
-      }
-
-
-
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
-      const response = await api.post('/reserves/equipments', equip, config);
-      // console.log(response.data)
-      if (response.data.status === 'accepted') {
-        Alert.alert('Reserva Confirmada!');
-        setModalVisible(!modalVisible);
-      }
-
-    } catch (err) {
-      Alert.alert('Falha ao realizar Reserva!')
-      setModalVisible(!modalVisible);
-
-      // console.log(err)
-    }
-  }
 
   const selectSportCourt = () => {
     setModalVisible(!modalVisible);
@@ -316,15 +281,16 @@ export default function SportCourtReserve() {
       {console.log(hour)}
 
 
-      {hourArrayAvailable.length !== 0 ? (
+      {hour.length !== 0 ? (
         <View style={{ paddingLeft: 20 }}>
-          <Text style={styles.textInput}>Horário</Text>
+          <Text style={styles.textInput}>Horário:</Text>
           <Picker
-            selectedValue={hourArrayAvailable}
+            selectedValue={hour}
             onValueChange={(item, index) => { loadSportCourt(item) }}
           >
             <Picker.Item label="Selecione um Horário" value={''} />
-            {hourArrayAvailable.map((hour: IarrayHour) => {
+            {
+            hour.map((hour: IarrayHour) => {
               return hour.available ? (<Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />) : null
             })}
           </Picker>
