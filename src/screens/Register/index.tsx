@@ -7,8 +7,6 @@ import Toast from 'react-native-toast-message';
 import { TextInputMask } from 'react-native-masked-text';
 import { Button } from 'react-native-elements';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { useNavigation } from '@react-navigation/native';
 
 import { isValidCpf } from '../../utils/validations';
@@ -267,7 +265,6 @@ export default function Register() {
                 selectedValue={values.bond}
                 ref={bondRef}
                 onValueChange={(item, index) => {
-                  console.log('bondSelect - ', item)
                   setFieldValue('bond', item);
 
                   if (item == visitante.id || item == colaborador.id) {

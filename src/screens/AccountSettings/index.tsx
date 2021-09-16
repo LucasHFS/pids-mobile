@@ -17,6 +17,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Switch } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../hooks/auth';
 
 
 interface Ivalues{
@@ -46,7 +47,7 @@ interface InitialValues{
 }
 
 export default function AccountSettings() {
-  // Todo: Handle Password Changing
+  const { updateUser } = useAuth();
   
   const navigation = useNavigation();
 
@@ -64,40 +65,59 @@ export default function AccountSettings() {
   const courseRef = useRef(null);
   const passwordRef = useRef(null) ;
   const password_confirmationRef = useRef(null);
-  
+
+  const [visitante, setVisitante] = useState({});
+  const [colaborador, setColaborador] = useState({});
+  const [semVinculo, setSemVinculo] = useState({});
+
   useEffect(() => {
-    const fetchBonds = async ()=>{
-      try{
+    const getBonds = (bonds) => {
+      const visitante = bonds.find((bond => bond.name === 'Visitante' ))
+      const colaborador = bonds.find((bond => bond.name === 'Colaborador' ))
+      setVisitante(visitante)
+      setColaborador(colaborador)
+    }
+
+    const fetchBonds = async () => {
+      try {
         const response = await api.get('bonds');
         setBonds(response.data);
-      }catch(err){
+        getBonds(response.data)
+      } catch (err) {
         Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao Carregar Vínculos'})
         console.log(err)
       }
     }
   
-    const fetchCourses = async ()=>{
-      try{
+    const fetchCourses = async () => {
+      try {
         const response = await api.get('courses');
         setCourses(response.data);
-      }catch(err){
+        const semVinculo = response.data.find((course => course.name === 'Sem Vínculo de Curso com a UEG' ))
+        setSemVinculo(semVinculo)
+      } catch (err) {
         Toast.show({type: 'error', position: 'top',text1:'Erro', text2:'Falha ao Carregar Cursos', })
         console.log(err)
       }
     }
-    
-    const _getData = async (key:string) => {
+
+    const _getData = async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem(key)
-        const objValue = jsonValue != null ? JSON.parse(jsonValue) : null;
+        const jsonUser = await AsyncStorage.getItem('@EReserva:user');
+        // @ts-ignore
+        const user = JSON.parse(jsonUser);
+
+        console.log('user')
+        console.log(user)
+
         setInitialValues({
-          id: objValue.id,
-          cpf: objValue.cpf,
-          name: objValue.name,
-          email: objValue.email,
-          phone: objValue.phone,
-          bond: objValue.bond_id,
-          course: objValue.course_id,
+          id: user.id,
+          cpf: user.cpf,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          bond: user.bondId,
+          course: user.courseId,
           password: '',
           password_confirmation: '',
         });
@@ -107,21 +127,11 @@ export default function AccountSettings() {
         console.log(e)
       }
     }
-    _getData('@loggedUser');
+    _getData();
 
     fetchBonds();
     fetchCourses();
   },[]);
-
-  const _mergeData = async (key: string, value: any) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.mergeItem(key, jsonValue)
-    } catch (e) {
-      console.log(e)
-      Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao armazenar dados no dispositivos', visibilityTime: 3000 , });
-    }
-  }
 
   const inputStyle = {
     borderWidth: 1,
@@ -129,6 +139,7 @@ export default function AccountSettings() {
     padding: 12,
     marginBottom: 5,
   };
+
 
   const validationSchema = yup.object().shape({
     cpf: yup
@@ -145,11 +156,9 @@ export default function AccountSettings() {
     phone: yup
     .string(),
     bond: yup
-    .string()
-    .required('Selecione um Vínculo a UEG!'),
+    .string(),
     course: yup
-    .string()
-    .required('Selecione o curso vinculado a UEG!'),
+    .string(),
     password: yup
       .string()
       .min(6, 'Senha deve possuir no mínimo 6 caracteres!')
@@ -161,56 +170,70 @@ export default function AccountSettings() {
       .notRequired(),
   })
 
-    const handleUpdate = async (values: Ivalues) =>{
-      if(values.bond != '2' && values.bond != '3'){
-        values.course = '1';
-      }
+  const handleUpdate = async (values: Ivalues) =>{
+    if (values.bond === visitante.id || values.bond === colaborador.id) {
+      values.course = semVinculo.id;
+    }
+    
+    let rawCpf = values.cpf.match(/\d+/g)?.join('')
+    let rawPhone = values.phone.match(/\d+/g)?.join('')
 
-      
-      let rawCpf = values.cpf.match(/\d+/g)?.join('')
-      let rawPhone = values.phone.match(/\d+/g)?.join('')
+    const password = values.password !== '' ? values.password : null;
 
-      const password = values.password !== '' ? values.password : null;
-
+    console.log('got it')
 
     try {
+      const token = await AsyncStorage.getItem('@EReserva:token');
 
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
 
-      const response = await api.put(`/users/${initialValues.id}`,{
-          name: values.name,
-          email: values.email,
-          phone: rawPhone,
-          cpf: rawCpf,
-          password: password,
-          bond_id: parseInt(values.bond),
-          course_id: parseInt(values.course),
-       });
+      const data =  {
+        name: values.name,
+        email: values.email,
+        phone: rawPhone,
+        cpf: rawCpf,
+        password: password,
+        bondId: values.bond,
+        courseId: values.course,
+      }
 
-        //todo: insert loading component
+      console.log(initialValues.id)
+      console.log(data)
 
-        if(response.status === 200){
-          Toast.show({type: 'success', position: 'bottom',text1:'Sucesso', text2:'Alteração Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
-          const data = response.data;
+      const response = await api.put(`/users/${initialValues.id}`, data, config);
 
-          _mergeData('@loggedUser', {
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            cpf: data.cpf,
-            phone: data.phone,
-            bond_id: data.bond_id,
-            role_id: data.role_id,
-            course_id: data.courses[0].id
-          });
+      console.log('response.status')
+      console.log(response.status)
+      console.log(response.body)
+      
+      if(response.status === 200){
+        Toast.show({type: 'success', position: 'bottom',text1:'Sucesso', text2:'Alteração Concluído', visibilityTime: 3000 , onHide: () => navigation.navigate('Main')});
+        const data = response.data;
 
-          setIsEditable(false);
-        }
+        console.log('data')
+        console.log(data)
+
+        updateUser({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          cpf: data.cpf,
+          phone: data.phone,
+          bondId: data.bond.id,
+          courseId: data.courses[0].id,
+        });
+
+        setIsEditable(false);
+      }
 
     } catch (error) {
+      console.log(error)
 
-       //mensagens de erro no cadastro
+      //mensagens de erro no cadastro
       if (error.response.status == 400) {
-        Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message , })
+        // Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: error.response.data[0].message })
       }
       if (error.response.status == 500) {
         Toast.show({ type: 'error', position: 'bottom', text1: 'Erro', text2: 'Falha ao Alterar Dados. erro Interno do Servidor!' , })
@@ -226,11 +249,11 @@ export default function AccountSettings() {
           <Formik
             initialValues={initialValues}
             enableReinitialize={true}
-            onSubmit={values => handleUpdate(values)}
+            onSubmit={values => { handleUpdate(values) } }
 
             validationSchema={validationSchema}
           >
-            {({ values, handleChange, setFieldValue, errors, setFieldTouched, touched, isValid, handleSubmit }) => (
+            {({ values, handleChange, setFieldValue, errors, setFieldTouched, touched, handleSubmit }) => (
               <View style={styles.formContainer}>
 
                   <Button
@@ -316,13 +339,10 @@ export default function AccountSettings() {
                   selectedValue={values.bond}
                   ref={bondRef}
                   onValueChange={(item,index) => {
-                    setFieldValue('bond',item);
-                    if(item != 2 && item != '3' && item != ''){
-                      setFieldValue('course','1');
-                    }else{
-                      if(values.course == '1'){
-                        setFieldValue('course','1');
-                      }
+                    setFieldValue('bond', item);
+
+                    if (item == visitante.id || item == colaborador.id) {
+                      setFieldValue('course', semVinculo.id);
                     }
                   }}>
                   <Picker.Item label="Vínculo com a UEG" value={''} />              
@@ -334,7 +354,7 @@ export default function AccountSettings() {
                   <Text style={{ fontSize: 12, color: '#FF0D10' }}>{errors.bond}</Text>
                 }
 
-              {values.bond == '2' || values.bond == '3' ? //If there is Bond selects the
+              { values.bond !== visitante.id && values.bond !== colaborador.id && values.bond !== '' ? //If there is Bond selects the */
               <>
                 <Text style={styles.textInput}>Curso Relacionado</Text>      
                   <Picker
@@ -404,7 +424,6 @@ export default function AccountSettings() {
                   <Button
                     color="#3740FE"
                     title='Alterar Dados'
-                    disabled={!isValid}
                     onPress={() => handleSubmit()}
                   />
                 </>

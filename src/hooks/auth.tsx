@@ -10,13 +10,12 @@ interface User {
   email: string;
   cpf: string;
   phone: string;
-  roleId: string;
   bondId: string;
+  courseId: string;
 }
 
 interface AuthState {
   token: string;
-  // user: Record<string, unknown>; // object
   user: User | null;
 }
 
@@ -26,7 +25,6 @@ interface SingInCredentials {
 }
 
 interface AuthContextData {
-  // user: Record<string, unknown>;
   user: User | null;
   signIn(credentials: SingInCredentials): Promise<void>;
   signOut(): void;
@@ -68,11 +66,13 @@ const AuthProvider: React.FC = ({ children }) => {
 
     const { token, user } = response.data;
 
+    console.log('user')
+    console.log(user)
+
     await AsyncStorage.multiSet([
       ['@EReserva:token', token],
       ['@EReserva:user', JSON.stringify(user)]
     ]);
-    // api.defaults.headers.authorization = `Bearer ${token}`;
 
     setData({ token, user });
   }, []);
@@ -91,7 +91,7 @@ const AuthProvider: React.FC = ({ children }) => {
 
   const updateUser = useCallback(
     (user: User) => {
-      localStorage.setItem('@EReserva:user', JSON.stringify(user));
+      AsyncStorage.setItem('@EReserva:user', JSON.stringify(user));
 
       setData({
         token: data.token,
