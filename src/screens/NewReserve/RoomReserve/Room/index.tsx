@@ -131,15 +131,16 @@ export default function NewRoomReserve() {
   };
 
   const createReserve = async (room) => {
-    console.log(date)
-    console.log(room.id)
+    const formattedDate = new Date(date);
 
-
+    formattedDate.setHours(hour.split(':')[0])
+    formattedDate.setMinutes(hour.split(':')[1])
+    
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
       const obj = {
         room_id: room.id,
-        starts_at: date,
+        starts_at: formattedDate,
       }
 
 

@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, LogBox, SafeAreaView, ScrollView, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
-// import { useAuth } from '../../hooks/auth';
+import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../services/api';
-import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-community/picker'
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import SportCourtTouchable from '../../../components/SportCourtTouchable/index';
-
-import { hourArrayAvailable } from '../../../constants/hourArraysAvailable';
 
 interface IarrayHour {
   hour: number,
@@ -23,77 +18,32 @@ interface IarrayHour {
 export default function SportCourtReserve() {
   const navigation = useNavigation();
 
-
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
-  const [hour, setHour] = useState([]);
+  const [hour, setHour] = useState({});
+  const [hours, setHours] = useState([]);
   const [sportCourts, setSportCourts] = useState([]);
   const [show, setShow] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [sportCourtModal, setSportCourtModal] = useState({});
 
-
-  // const fetchSportCourts = async (data) => {
-
-  //   try {
-  //     const token = await AsyncStorage.getItem('@EReserva:token');
-
-  //     const config = {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //       params: {
-  //         date: data.date,
-  //         hour: data.hour,
-  //         minute: data.minute
-  //       }
-  //     };
-  //     const response = await api.get('/reserves/equipments/available', config);
-  //     setEquipments(response.data);
-
-  //   } catch (err) {
-  //     Alert.alert('Falha ao carregar equipamentos!')
-  //     // console.log(err)
-  //   }
-  // }
-  // const fetchEquipments = async (data) => {
-
-
-  // }
-
   const onChange = (event, selectedDate) => {
-    // setHour({});
-
-    // console.log(event.type)
+    setHour({});
     if (event.type === "set") {
       setDate(selectedDate); //confirmar, seta a data no state
-
+      fetcDayAvailability(selectedDate.getTime()); //confirmar, seta a data no state
     }
 
     if (event.type === "dimissed") { //cancelar do datepicker
       setSportCourtModal({});
     }
 
-
     setShow(false);
-
-    if (event.type === "set") {
-      fetcDayAvailability(selectedDate.getTime()); //confirmar, seta a data no state
-
-    }
-
-
-    //realizar requisição aqui!!!
-
-    // setShow(Platform.OS === 'ios');
-    // if (selectedDate != undefined) {
-    //   setDate(selectedDate.getTime());
-    // }
   };
 
   const fetcDayAvailability = async (data) => {
-
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
-
       
       const config = {
         headers: { Authorization: `Bearer ${token}` },
@@ -102,12 +52,9 @@ export default function SportCourtReserve() {
           sport_court_id: sportCourtModal.id,
         }
       };
-      console.log('data', config)
-      
       
       const response = await api.get('/reserves/sportcourts/day-availability', config);
-      setHour(response.data);
-
+      setHours(response.data);
     } catch (err) {
       Alert.alert('Falha ao carregar quadras!')
       console.log(err)
@@ -124,7 +71,6 @@ export default function SportCourtReserve() {
   };
 
   const loadSportCourt = (time: IarrayHour) => {
-
     const hourMinute = time.split(':');
 
     setHour(time);
@@ -136,7 +82,6 @@ export default function SportCourtReserve() {
   };
 
   const sendReserveSportCourt = async (data) => {
-
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
 
@@ -152,6 +97,7 @@ export default function SportCourtReserve() {
       const response = await api.post('/reserves/sportcourts', obj, config);
       if (response.data.status === "accepted") {
         Alert.alert("Reserva da quadra solicitada!");
+        navigation.navigate('Home')
       }
 
     } catch (err) {
@@ -247,16 +193,13 @@ export default function SportCourtReserve() {
         />
       )}
 
-
-      {sportCourts.length !== 0 ?
-
+      {sportCourts.length > 0 ?
         <View style={styles.containerCenter}>
           <Text style={styles.textInput}>Listagem de quadras esportivas:</Text>
           <FlatList
             data={sportCourts}
             renderItem={({ item, index, separators }) => (
               <View style={{ padding: 20, margin: 1 }}>
-                {/* onPress={() => { }} */}
                 <SportCourtTouchable reserve={item} onPress={() => { ShowModal(item) }} />
               </View>
             )}
@@ -265,23 +208,7 @@ export default function SportCourtReserve() {
         :
         null}
 
-      {/* {console.log(sportCourtModal)} */}
-
-      {/* {sportCourtModal !== "" ?
-        <View style={{ padding: 20, margin: 10 }}>
-          <View>
-            <Button onPress={showDatepicker} title="Selecione a data" />
-          </View>
-        </View>
-        :
-        null
-      } */}
-
-
-      {console.log(hour)}
-
-
-      {hour.length !== 0 ? (
+      {hours.length > 0 ? (
         <View style={{ paddingLeft: 20 }}>
           <Text style={styles.textInput}>Horário:</Text>
           <Picker
@@ -290,19 +217,17 @@ export default function SportCourtReserve() {
           >
             <Picker.Item label="Selecione um Horário" value={''} />
             {
-            hour.map((hour: IarrayHour) => {
+            hours.length > 0 ? hours.map((hour: IarrayHour) => {
               return hour.available ? (<Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />) : null
-            })}
+            }) : null
+          }
           </Picker>
         </View>
       )
         :
         null
-
       }
-
       <View style={styles.divider}></View>
-
     </View>
   );
 }

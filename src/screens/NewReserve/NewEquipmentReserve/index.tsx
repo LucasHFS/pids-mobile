@@ -120,16 +120,17 @@ export default function NewEquipmentReserve() {
   };
 
   const createReserve = async (equipment) => {
-
-
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
+      const formattedDate = new Date(date);
+      
+      formattedDate.setHours(hour.split(':')[0])
+      formattedDate.setMinutes(hour.split(':')[1])
+
       const equip = {
         equipment_id: equipment.id,
-        starts_at: date,
+        starts_at: formattedDate,
       }
-
-
 
       const config = {
         headers: { Authorization: `Bearer ${token}` }
