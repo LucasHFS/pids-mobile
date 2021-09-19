@@ -97,7 +97,7 @@ export default function SportCourtReserve() {
       const response = await api.post('/reserves/sportcourts', obj, config);
       if (response.data.status === "accepted") {
         Alert.alert("Reserva da quadra solicitada!");
-        navigation.navigate('Home')
+        navigation.push('Home')
       }
 
     } catch (err) {

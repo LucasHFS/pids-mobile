@@ -1,38 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, LogBox, SafeAreaView, ScrollView, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
-// import { useAuth } from '../../hooks/auth';
+import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../../services/api';
-import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-community/picker'
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import RoomTouchable from '../../../../components/RoomTouchable/index';
 
 import { startHourArray } from '../../../../constants/hourArrays';
-import { split } from 'lodash';
-import { array } from 'yup/lib/locale';
-
-
-
-interface Equipment {
-  id: number
-  name: string
-  description: string
-}
 
 interface IarrayHour {
   hour: number,
   minute: number
 }
 
-
 export default function NewRoomReserve() {
   const navigation = useNavigation();
-
 
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
@@ -41,10 +27,9 @@ export default function NewRoomReserve() {
   const [show, setShow] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [roomModal, setRoomModal] = useState({});
-
+  const [hoursSelectVisible, setHoursSelectVisible] = useState(false)
 
   const fetchRooms = async (data) => {
-
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
 
@@ -63,18 +48,14 @@ export default function NewRoomReserve() {
       });
 
       setRooms(result);
-
-
     } catch (err) {
       Alert.alert('Falha ao carregar salas!')
-      // console.log(err)
+      console.log(err)
     }
   }
 
   const onChange = (event, selectedDate) => {
-
-    console.log(selectedDate)
-    // setHour({});
+    setHoursSelectVisible(true)
 
     if (event.type === "dismissed") {
       setRooms([]);
@@ -82,15 +63,9 @@ export default function NewRoomReserve() {
 
     if (event.type === "set") {
       setDate(selectedDate.getTime());
-
     }
 
     setShow(false);
-
-    // setShow(Platform.OS === 'ios');
-    // if (selectedDate != undefined) {
-    //   setDate(selectedDate.getTime());
-    // }
   };
 
   const showMode = (currentMode) => {
@@ -105,8 +80,9 @@ export default function NewRoomReserve() {
   const showTimepicker = () => {
     showMode('time');
   };
-  const loadRoom = (time: IarrayHour) => {
 
+  const loadRoom = (time: IarrayHour) => {
+    setHoursSelectVisible(false);
     const hourMinute = time.split(':');
 
     setHour(time);
@@ -118,12 +94,10 @@ export default function NewRoomReserve() {
     }
 
     fetchRooms(data)
-
   };
 
   useEffect(() => {
   }, []);
-
 
   const ShowModal = (item) => {
     setModalVisible(true);
@@ -143,7 +117,6 @@ export default function NewRoomReserve() {
         starts_at: formattedDate,
       }
 
-
       const config = {
         headers: { Authorization: `Bearer ${token}` }
       };
@@ -152,28 +125,18 @@ export default function NewRoomReserve() {
       if (response.data.status === 'accepted') {
         Alert.alert('Reserva Confirmada!');
         setModalVisible(!modalVisible);
-        navigation.navigate("Home");
+        navigation.push("Home");
       }
-
-      // if (response.data.status === 'pending') {
-      //   Alert.alert('Aguarde a confirmação da reserva!');
-      //   setModalVisible(!modalVisible);
-      //   navigation.navigate("Home");
-      // }
 
     } catch (err) {
       Alert.alert('Falha ao realizar Reserva!')
       console.log(err)
       setModalVisible(!modalVisible);
-
-      // console.log(err)
     }
   }
 
-
   return (
     <View style={{ flex: 1 }}>
-
 
       <Modal
         animationType="slide"
@@ -214,10 +177,6 @@ export default function NewRoomReserve() {
         <View>
           <Button onPress={showDatepicker} title="Selecione a data" />
         </View>
-        {/* 
-        <View>
-        <Button onPress={showTimepicker} title="Show time picker!" />
-      </View> */}
 
         {show && (
           <DateTimePicker
@@ -232,19 +191,21 @@ export default function NewRoomReserve() {
 
         <View style={styles.divider}></View>
 
+        {hoursSelectVisible ? (
+          <>
+            <Text style={styles.textInput}>Horário</Text>
+            <Picker
+              selectedValue={hour}
+              onValueChange={(item, index) => { loadRoom(item) }}>
+              <Picker.Item label="Selecione um Horário" value={''} />
+              {startHourArray.map((hour: IarrayHour) => {
+                return <Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />
+              })}
+            </Picker>
 
-        <Text style={styles.textInput}>Horário</Text>
-        <Picker
-          selectedValue={hour}
-          onValueChange={(item, index) => { loadRoom(item) }}>
-          <Picker.Item label="Selecione um Horário" value={''} />
-          {startHourArray.map((hour: IarrayHour) => {
-            return <Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />
-          })}
-        </Picker>
-
-        <View style={styles.divider}></View>
-
+            <View style={styles.divider}></View>
+          </>
+        ) : null }
 
         {rooms.length !== 0 ?
 
@@ -261,9 +222,7 @@ export default function NewRoomReserve() {
             />
           </View>
           :
-          null}
-
-
+          null }
       </View>
     </View >
   );

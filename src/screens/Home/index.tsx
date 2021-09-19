@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
+import { Alert, Text, View, StyleSheet, Modal, Pressable, SafeAreaView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../hooks/auth';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
 import api from '../../services/api';
-import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import SportCourtReserveTouchable from '../../components/SportCourtReserveTouchable';
 import RoomReserveTouchable from '../../components/RoomReserveTouchable';
 import EquipmentReserveTouchable from '../../components/EquipmentReserveTouchable';
@@ -19,29 +18,32 @@ export default function Home() {
 
   const [myReserves, setMyReserves] = useState([]);
 
-  const fetchReserves = async () => {
-    try {
-      const token = await AsyncStorage.getItem('@EReserva:token');
-
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
-      const response = await api.get('my_reserves', config);
-      setMyReserves(response.data);
-    } catch (err) {
-      Alert.alert('Falha ao Carregar Reservas')
-      console.log(err)
-    }
-  }
   const formatNotificationHour = (dirtyDate: string) => {
     const date = new Date(dirtyDate);
     return `${format(date, 'H:mm')}`
   }
+
   const formatNotificationDate = (dirtyDate: string) => {
     const date = new Date(dirtyDate);
     return `${format(date, 'd/M/yyyy')}`
   }
+
   useEffect(() => {
+    const fetchReserves = async () => {
+      try {
+        const token = await AsyncStorage.getItem('@EReserva:token');
+  
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        const response = await api.get('my_reserves', config);
+        setMyReserves(response.data);
+      } catch (err) {
+        Alert.alert('Falha ao Carregar Reservas')
+        console.log(err)
+      }
+    }
+
     fetchReserves();
   }, []);
 
@@ -83,7 +85,7 @@ export default function Home() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.divider} />
 
       <Modal
@@ -175,10 +177,8 @@ export default function Home() {
         <View style={styles.divider} />
 
       </View>
-    </View>
-
+    </SafeAreaView>
   );
-
 }
 
 const styles = StyleSheet.create({

@@ -32,15 +32,14 @@ interface IarrayHour {
 export default function NewEquipmentReserve() {
   const navigation = useNavigation();
 
-
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [hour, setHour] = useState({});
   const [equipments, setEquipments] = useState([]);
   const [show, setShow] = useState(false);
+  const [hoursSelectVisible, setHoursSelectVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false);
   const [equipmentModal, setEquipmentModal] = useState({});
-
 
   const fetchEquipments = async (data) => {
 
@@ -56,30 +55,23 @@ export default function NewEquipmentReserve() {
         }
       };
 
-      console.log(config);
-
       const response = await api.get('/reserves/equipments/available', config);
       setEquipments(response.data);
 
     } catch (err) {
       Alert.alert('Falha ao carregar equipamentos!')
-      // console.log(err)
+      console.log(err)
     }
   }
 
   const onChange = (event, selectedDate) => {
-    // setHour({});
+    setHoursSelectVisible(true);
 
     if (event.type !== "dismissed") {
       setDate(selectedDate.getTime());
-
     }
-    setShow(false);
 
-    // setShow(Platform.OS === 'ios');
-    // if (selectedDate != undefined) {
-    //   setDate(selectedDate.getTime());
-    // }
+    setShow(false);
   };
 
   const showMode = (currentMode) => {
@@ -94,6 +86,7 @@ export default function NewEquipmentReserve() {
   const showTimepicker = () => {
     showMode('time');
   };
+
   const loadEquipment = (time: IarrayHour) => {
 
     const hourMinute = time.split(':');
@@ -107,12 +100,8 @@ export default function NewEquipmentReserve() {
     }
 
     fetchEquipments(data)
-
+    setHoursSelectVisible(false);
   };
-
-  useEffect(() => {
-  }, []);
-
 
   const ShowModal = (item) => {
     setModalVisible(true);
@@ -140,7 +129,7 @@ export default function NewEquipmentReserve() {
       if (response.data.status === 'accepted') {
         Alert.alert('Reserva Confirmada!');
         setModalVisible(!modalVisible);
-        navigation.navigate("Home");
+        navigation.push("Home");
       }
 
     } catch (err) {
@@ -154,8 +143,6 @@ export default function NewEquipmentReserve() {
 
   return (
     <View style={{ flex: 1 }}>
-
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -187,17 +174,12 @@ export default function NewEquipmentReserve() {
             </View>
           </View>
         </View>
-
       </Modal>
 
       <View style={{ padding: 20, margin: 10 }}>
         <View>
           <Button onPress={showDatepicker} title="Selecione a data" />
         </View>
-        {/* 
-        <View>
-        <Button onPress={showTimepicker} title="Show time picker!" />
-      </View> */}
 
         {show && (
           <DateTimePicker
@@ -212,22 +194,23 @@ export default function NewEquipmentReserve() {
 
         <View style={styles.divider}></View>
 
-
-        <Text style={styles.textInput}>Horário</Text>
-        <Picker
-          selectedValue={hour}
-          onValueChange={(item, index) => { loadEquipment(item) }}>
-          <Picker.Item label="Selecione um Horário" value={''} />
-          {startHourArray.map((hour: IarrayHour) => {
-            return <Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />
-          })}
-        </Picker>
-
-        <View style={styles.divider}></View>
-
+        {hoursSelectVisible ? (
+          <>
+            <Text style={styles.textInput}>Horário</Text>
+            <Picker
+              selectedValue={hour}
+              onValueChange={(item, index) => { loadEquipment(item) }}>
+              <Picker.Item label="Selecione um Horário" value={''} />
+              {startHourArray.map((hour: IarrayHour) => {
+                return <Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />
+              })}
+            </Picker>
+    
+            <View style={styles.divider}></View>
+          </>
+        ) : null}
 
         {equipments.length !== 0 ?
-
           <View>
             <Text style={styles.textInput}>Equipamentos disponíveis:</Text>
             <FlatList
