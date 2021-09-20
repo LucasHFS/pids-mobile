@@ -44,11 +44,11 @@ const styles = StyleSheet.create({
   },
   textInput2: {
     fontWeight: 'bold',
-    fontSize: 13
+    fontSize: 15
   },
   textInput3: {
     fontWeight: 'normal',
-    fontSize: 12
+    fontSize: 15
   },
 
 });

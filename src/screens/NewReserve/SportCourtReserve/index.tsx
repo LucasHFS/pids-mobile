@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
+import { Alert, Text, View, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../services/api';
@@ -44,7 +44,7 @@ export default function SportCourtReserve() {
   const fetcDayAvailability = async (data) => {
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
-      
+
       const config = {
         headers: { Authorization: `Bearer ${token}` },
         params: {
@@ -52,7 +52,7 @@ export default function SportCourtReserve() {
           sport_court_id: sportCourtModal.id,
         }
       };
-      
+
       const response = await api.get('/reserves/sportcourts/day-availability', config);
       setHours(response.data);
     } catch (err) {
@@ -151,12 +151,9 @@ export default function SportCourtReserve() {
 
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Equipamento:{sportCourtModal.name ? sportCourtModal.name : ''}</Text>
-            <Text style={styles.modalText}>Descrição:{sportCourtModal.description ? sportCourtModal.description : ''}</Text>
-            {/* <Text style={styles.modalText}>Horário da Reserva: {hour}</Text> 
-             <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text> 
-            <Text style={styles.modalText}>Data da Reserva</Text> */}
-
+            <Text style={styles.textInput2}>Equipamento: <Text style={styles.textInput3}>{sportCourtModal.name ? sportCourtModal.name : ''}</Text></Text>
+            <Text style={styles.textInput2}>Descrição: <Text style={styles.textInput3}>{sportCourtModal.description ? sportCourtModal.description : ''}</Text></Text>
+            <View style={styles.divider} />
 
             <View style={styles.buttonModal}>
               <Pressable
@@ -194,17 +191,23 @@ export default function SportCourtReserve() {
       )}
 
       {sportCourts.length > 0 ?
-        <View style={styles.containerCenter}>
+        <>
+          <View style={styles.divider} />
+          <View style={styles.divider} />
+
           <Text style={styles.textInput}>Listagem de quadras esportivas:</Text>
-          <FlatList
-            data={sportCourts}
-            renderItem={({ item, index, separators }) => (
-              <View style={{ padding: 20, margin: 1 }}>
-                <SportCourtTouchable reserve={item} onPress={() => { ShowModal(item) }} />
-              </View>
-            )}
-          />
-        </View>
+
+          <View style={styles.containerCenter}>
+            <FlatList
+              data={sportCourts}
+              renderItem={({ item, index, separators }) => (
+                <View style={{ padding: 10, margin: 1 }}>
+                  <SportCourtTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                </View>
+              )}
+            />
+          </View>
+        </>
         :
         null}
 
@@ -217,10 +220,10 @@ export default function SportCourtReserve() {
           >
             <Picker.Item label="Selecione um Horário" value={''} />
             {
-            hours.length > 0 ? hours.map((hour: IarrayHour) => {
-              return hour.available ? (<Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />) : null
-            }) : null
-          }
+              hours.length > 0 ? hours.map((hour: IarrayHour) => {
+                return hour.available ? (<Picker.Item key={hour.hour} label={`${hour.hour}:${hour.minute}`} value={`${hour.hour}:${hour.minute}`} />) : null
+              }) : null
+            }
           </Picker>
         </View>
       )
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     marginTop: 15,
-    marginLeft: 8,
+    marginLeft: 18,
     fontWeight: 'bold',
     fontSize: 17
   },
@@ -271,9 +274,10 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   centeredView: {
-    justifyContent:'center',
+    justifyContent: 'center',
+    alignItems: "center",
     flex: 1,
-    marginTop: 22
+    marginTop: 10,
   },
   modalView: {
     margin: 20,
@@ -292,5 +296,13 @@ const styles = StyleSheet.create({
   },
   buttonModal: {
     flexDirection: 'row',
-  }
+  },
+  textInput2: {
+    fontWeight: 'bold',
+    fontSize: 15
+  },
+  textInput3: {
+    fontWeight: 'normal',
+    fontSize: 15
+  },
 });

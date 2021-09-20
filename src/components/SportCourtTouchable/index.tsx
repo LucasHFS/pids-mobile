@@ -12,8 +12,8 @@ const SportCourtTouchable = ({ reserve, onPress }) => {
       onPress={() => onPress()}
     >
       <View style={styles.container}>
-        <Text style={styles.textInput2}> <Text style={styles.textInput3}>Nome: {reserve ? reserve.name : ''}</Text></Text>
-        <Text style={styles.textInput2}> <Text style={styles.textInput3}>Descrição: {reserve.description || ''}</Text></Text>
+        <Text style={styles.textInput2}>Nome: <Text style={styles.textInput3}> {reserve ? reserve.name : ''}</Text></Text>
+        <Text style={styles.textInput2}>Descrição:  <Text style={styles.textInput3}>{reserve.description || ''}</Text></Text>
       </View>
     </TouchableHighlight >
   )
@@ -23,18 +23,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     padding: 20,
     borderRadius: 10,
     backgroundColor: '#87BDFA',
   },
   textInput2: {
     fontWeight: 'bold',
-    fontSize: 13
+    fontSize: 15
   },
   textInput3: {
     fontWeight: 'normal',
-    fontSize: 12
+    fontSize: 15
   },
 });
 

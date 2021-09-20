@@ -202,20 +202,31 @@ export default function NewLabReserve() {
         />
       )}
 
-      {rooms.length > 0 ?
 
-        <View style={styles.containerCenter}>
-          <Text style={styles.textInput}>Listagem de salas:</Text>
-          <FlatList
-            data={rooms}
-            renderItem={({ item, index, separators }) => (
-              <View style={{ padding: 20, margin: 1 }}>
-                <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
-              </View>
-            )}
-          />
-        </View>
-        : null }
+      {rooms.length !== 0 ?
+        <>
+          <View style={styles.divider} />
+
+          <View style={styles.containerCenter}>
+
+            <Text style={styles.textInput}>Listagem de salas:</Text>
+            <FlatList
+              data={rooms}
+              renderItem={({ item, index, separators }) => (
+                <View style={{ padding: 20, margin: 1 }}>
+                  {/* onPress={() => { }} */}
+                  <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                </View>
+              )}
+            />
+          </View>
+        </>
+        :
+        null}
+
+
+
+      {/* {console.log(sportCourtModal)} */}
 
       { hoursSelectVisible ? (
         <View style={{ paddingLeft: 20 }}>
@@ -234,7 +245,6 @@ export default function NewLabReserve() {
         : null
       }
 
-      <View style={styles.divider}></View>
     </View>
   );
 }
@@ -278,8 +288,9 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   centeredView: {
+    justifyContent: 'center',
+    alignItems: "center",
     flex: 1,
-    justifyContent: "center",
     marginTop: 22
   },
   modalView: {

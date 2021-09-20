@@ -12,8 +12,8 @@ const EquipmentTouchable = ({ reserve, onPress }) => {
       onPress={() => onPress()}
     >
       <View style={styles.container}>
-        <Text>Nome: {reserve ? reserve.name : ''}</Text>
-        <Text>Descrição: {reserve.description || ''}</Text>
+        <Text style={styles.textInput2}>Nome: <Text style={styles.textInput3}>{reserve ? reserve.name : ''}</Text></Text>
+        <Text style={styles.textInput2}>Descrição: <Text style={styles.textInput3}>{reserve.description || ''}</Text></Text>
 
       </View>
     </TouchableHighlight >
@@ -32,7 +32,15 @@ const styles = StyleSheet.create({
 
   countText: {
     color: "#FF00FF"
-  }
+  },
+  textInput2: {
+    fontWeight: 'bold',
+    fontSize: 15
+  },
+  textInput3: {
+    fontWeight: 'normal',
+    fontSize: 15
+  },
 });
 
 export default EquipmentTouchable;

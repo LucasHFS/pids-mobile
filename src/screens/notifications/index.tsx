@@ -55,6 +55,7 @@ export default function Notifications() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 10, margin: 5 }}>
+        <View style={{padding:20}}/>
         <Text style={styles.textInputH1}>Minhas Notificações:</Text>
         <FlatList
           data={myNotifications}

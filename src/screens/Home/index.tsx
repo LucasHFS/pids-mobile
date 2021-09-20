@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, StyleSheet, Modal, Pressable, SafeAreaView } from 'react-native';
+import { Alert, Text, View, StyleSheet, Modal, Pressable, ScrollView, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../hooks/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -27,22 +27,23 @@ export default function Home() {
     const date = new Date(dirtyDate);
     return `${format(date, 'd/M/yyyy')}`
   }
+  const fetchReserves = async () => {
+    try {
+      const token = await AsyncStorage.getItem('@EReserva:token');
 
-  useEffect(() => {
-    const fetchReserves = async () => {
-      try {
-        const token = await AsyncStorage.getItem('@EReserva:token');
-  
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-        };
-        const response = await api.get('my_reserves', config);
-        setMyReserves(response.data);
-      } catch (err) {
-        Alert.alert('Falha ao Carregar Reservas')
-        console.log(err)
-      }
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+      const response = await api.get('my_reserves', config);
+      setMyReserves(response.data);
+    } catch (err) {
+      Alert.alert('Falha ao Carregar Reservas')
+      console.log(err)
     }
+  }
+  
+  useEffect(() => {
+
 
     fetchReserves();
   }, []);
@@ -85,7 +86,7 @@ export default function Home() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ backgroundColor: "#FFFF", flex: 1 }}>
       <View style={styles.divider} />
 
       <Modal
@@ -159,29 +160,37 @@ export default function Home() {
           onPress={() => { navigation.navigate('NewReserve') }}
         />
       </View>
+      <ScrollView >
 
-      <View style={{ padding: 10, margin: 5 }}>
-        <Text style={styles.textInputH1}>Minhas Reservas:</Text>
-        <FlatList
-          data={myReserves}
-          renderItem={({ item, index, separators }) => (
-            <View style={{ padding: 8, margin: 2 }}>
-              {
-                item.equipment ? <EquipmentReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> :
-                  item.room ? <RoomReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> :
-                    item.sport_court ? <SportCourtReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> : null
-              }
-            </View>
-          )}
-        />
-        <View style={styles.divider} />
+        <View style={{ padding: 10, margin: 5 }}>
 
-      </View>
-    </SafeAreaView>
+          <Text style={styles.textInputH1}>Minhas Reservas: </Text>
+          <FlatList
+            data={myReserves}
+            renderItem={({ item, index, separators }) => (
+              <View style={{ padding: 8, margin: 2 }}>
+                {
+                  item.equipment ? <EquipmentReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> :
+                    item.room ? <RoomReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> :
+                      item.sport_court ? <SportCourtReserveTouchable reserve={item} onPress={() => { ShowModal(item) }} /> : null
+                }
+              </View>
+            )}
+          />
+
+        </View>
+      </ScrollView>
+
+    </View >
+
   );
 }
 
 const styles = StyleSheet.create({
+  scrollview: {
+    flex: 1,
+    padding: StatusBar.currentHeight
+  },
   formContainer: {
     padding: 20,
     justifyContent: 'space-between',

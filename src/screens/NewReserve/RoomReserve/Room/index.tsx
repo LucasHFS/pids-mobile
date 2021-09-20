@@ -41,6 +41,8 @@ export default function NewRoomReserve() {
           minute: data.minute
         }
       };
+
+      console.log(config);
       const response = await api.get('/reserves/rooms/available', config);
 
       const result = response.data.filter(room => {
@@ -57,11 +59,11 @@ export default function NewRoomReserve() {
   const onChange = (event, selectedDate) => {
     setHoursSelectVisible(true)
 
-    if (event.type === "dismissed") {
-      setRooms([]);
-    }
+    // if (event.type === "dismissed") {
+    //   setRooms([]);
+    // }
 
-    if (event.type === "set") {
+    if (event.type !== "dismissed") {
       setDate(selectedDate.getTime());
     }
 
@@ -109,7 +111,7 @@ export default function NewRoomReserve() {
 
     formattedDate.setHours(hour.split(':')[0])
     formattedDate.setMinutes(hour.split(':')[1])
-    
+
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
       const obj = {
@@ -148,11 +150,13 @@ export default function NewRoomReserve() {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Sala: {roomModal.name ? roomModal.name : ''}</Text>
-            <Text style={styles.modalText}>Tipo: {roomModal.type ? roomModal.type : ''}</Text>
-            <Text style={styles.modalText}>Descrição:{roomModal.description ? roomModal.description : ''}</Text>
-            <Text style={styles.modalText}>Horário da Reserva: {hour}</Text>
-            <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text>
+            <Text style={styles.textInput2}>Sala: <Text style={styles.textInput3}>{roomModal.name ? roomModal.name : ''}</Text></Text>
+            <Text style={styles.textInput2}>Tipo: <Text style={styles.textInput3}>{roomModal.type ? roomModal.type : ''}</Text></Text>
+            <Text style={styles.textInput2}>Descrição: <Text style={styles.textInput3}>{roomModal.description ? roomModal.description : ''}</Text></Text>
+            <Text style={styles.textInput2}>Horário da Reserva: <Text style={styles.textInput3}>{hour}</Text></Text>
+            <Text style={styles.textInput2}>Data da Reserva: <Text style={styles.textInput3}>{date.getFullYear}</Text></Text>
+
+            <View style={styles.divider} />
 
             <View style={styles.buttonModal}>
               <Pressable
@@ -172,6 +176,7 @@ export default function NewRoomReserve() {
         </View>
 
       </Modal>
+      <View style={styles.divider} />
 
       <View style={{ padding: 20, margin: 10 }}>
         <View>
@@ -205,24 +210,26 @@ export default function NewRoomReserve() {
 
             <View style={styles.divider}></View>
           </>
-        ) : null }
+        ) : null}
 
         {rooms.length !== 0 ?
 
-          <View>
+          <>
             <Text style={styles.textInput}>Salas disponíveis:</Text>
-            <FlatList
-              data={rooms}
-              renderItem={({ item, index, separators }) => (
-                <View style={{ padding: 10, margin: 5 }}>
-                  {/* onPress={() => { }} */}
-                  <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
-                </View>
-              )}
-            />
-          </View>
+            <View style={styles.containerCenter}>
+              <FlatList
+                data={rooms}
+                renderItem={({ item, index, separators }) => (
+                  <View style={{ padding: 10, margin: 5 }}>
+                    {/* onPress={() => { }} */}
+                    <RoomTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                  </View>
+                )}
+              />
+            </View>
+          </>
           :
-          null }
+          null}
       </View>
     </View >
   );
@@ -231,6 +238,10 @@ export default function NewRoomReserve() {
 const styles = StyleSheet.create({
   formContainer: {
     padding: 20,
+    justifyContent: 'space-between',
+  },
+  containerCenter: {
+    padding: 10,
     justifyContent: 'space-between',
   },
   textInput: {
@@ -262,7 +273,8 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   centeredView: {
-    justifyContent:'center',
+    justifyContent: 'center',
+    alignItems: "center",
     flex: 1,
     marginTop: 22
   },
@@ -283,5 +295,13 @@ const styles = StyleSheet.create({
   },
   buttonModal: {
     flexDirection: 'row',
-  }
+  },
+  textInput2: {
+    fontWeight: 'bold',
+    fontSize: 15
+  },
+  textInput3: {
+    fontWeight: 'normal',
+    fontSize: 15
+  },
 });

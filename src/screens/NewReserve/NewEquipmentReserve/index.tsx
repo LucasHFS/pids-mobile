@@ -112,7 +112,7 @@ export default function NewEquipmentReserve() {
     try {
       const token = await AsyncStorage.getItem('@EReserva:token');
       const formattedDate = new Date(date);
-      
+
       formattedDate.setHours(hour.split(':')[0])
       formattedDate.setMinutes(hour.split(':')[1])
 
@@ -142,7 +142,9 @@ export default function NewEquipmentReserve() {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ backgroundColor: "#FFFF", flex: 1 }}>
+
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -153,10 +155,11 @@ export default function NewEquipmentReserve() {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Equipamento:{equipmentModal.name ? equipmentModal.name : ''}</Text>
-            <Text style={styles.modalText}>Descrição:{equipmentModal.description ? equipmentModal.description : ''}</Text>
-            <Text style={styles.modalText}>Horário da Reserva: {hour}</Text>
-            <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text>
+            <Text style={styles.textInput2}>Equipamento: <Text style={styles.textInput3}>{equipmentModal.name ? equipmentModal.name : ''}</Text></Text>
+            <Text style={styles.textInput2}>Descrição:<Text style={styles.textInput3}>{equipmentModal.description ? equipmentModal.description : ''}</Text></Text>
+            <Text style={styles.textInput2}>Horário da Reserva:<Text style={styles.textInput3}> {hour}</Text></Text>
+            <Text style={styles.textInput2}>Data da Reserva:<Text style={styles.textInput3}> {date.getFullYear}</Text></Text>
+            <View style={styles.divider} />
 
             <View style={styles.buttonModal}>
               <Pressable
@@ -175,7 +178,7 @@ export default function NewEquipmentReserve() {
           </View>
         </View>
       </Modal>
-
+      <View style={styles.divider} />
       <View style={{ padding: 20, margin: 10 }}>
         <View>
           <Button onPress={showDatepicker} title="Selecione a data" />
@@ -211,18 +214,21 @@ export default function NewEquipmentReserve() {
         ) : null}
 
         {equipments.length !== 0 ?
-          <View>
+          <>
             <Text style={styles.textInput}>Equipamentos disponíveis:</Text>
-            <FlatList
-              data={equipments}
-              renderItem={({ item, index, separators }) => (
-                <View style={{ padding: 20, margin: 10 }}>
-                  {/* onPress={() => { }} */}
-                  <EquipmentTouchable reserve={item} onPress={() => { ShowModal(item) }} />
-                </View>
-              )}
-            />
-          </View>
+
+            <ScrollView>
+              <FlatList
+                data={equipments}
+                renderItem={({ item, index, separators }) => (
+                  <View style={{ paddingTop: 10, margin: 1 }}>
+                    {/* onPress={() => { }} */}
+                    <EquipmentTouchable reserve={item} onPress={() => { ShowModal(item) }} />
+                  </View>
+                )}
+              />
+            </ScrollView>
+          </>
           :
           null}
 
@@ -266,8 +272,9 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   centeredView: {
+    justifyContent: 'center',
+    alignItems: "center",
     flex: 1,
-    justifyContent: "center",
     marginTop: 22
   },
   modalView: {
@@ -287,5 +294,13 @@ const styles = StyleSheet.create({
   },
   buttonModal: {
     flexDirection: 'row',
-  }
+  },
+  textInput2: {
+    fontWeight: 'bold',
+    fontSize: 15
+  },
+  textInput3: {
+    fontWeight: 'normal',
+    fontSize: 15
+  },
 });
