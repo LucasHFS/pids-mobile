@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, StyleSheet, Modal, Pressable, ScrollView, StatusBar } from 'react-native';
+import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../hooks/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -145,7 +145,7 @@ export default function Home() {
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => { cancelSelectReserve() }}
               >
-                <Text style={styles.textStyle}>Cancelar</Text>
+                <Text style={styles.textStyle}>Fechar</Text>
               </Pressable>
             </View>
           </View>
@@ -160,10 +160,8 @@ export default function Home() {
           onPress={() => { navigation.navigate('NewReserve') }}
         />
       </View>
-      <ScrollView >
 
         <View style={{ padding: 10, margin: 5 }}>
-
           <Text style={styles.textInputH1}>Minhas Reservas: </Text>
           <FlatList
             data={myReserves}
@@ -179,18 +177,12 @@ export default function Home() {
           />
 
         </View>
-      </ScrollView>
-
     </View >
 
   );
 }
 
 const styles = StyleSheet.create({
-  scrollview: {
-    flex: 1,
-    padding: StatusBar.currentHeight
-  },
   formContainer: {
     padding: 20,
     justifyContent: 'space-between',

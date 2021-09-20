@@ -1,33 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, LogBox, SafeAreaView, ScrollView, TextInput, StyleSheet, Modal, Pressable } from 'react-native';
-// import { useAuth } from '../../hooks/auth';
+import React, { useState } from 'react';
+import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../services/api';
-import { FlatList, TouchableHighlight } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-community/picker'
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import EquipmentTouchable from '../../../components/EquipmentTouchable/index';
 
 import { startHourArray } from '../../../constants/hourArrays';
-import { split } from 'lodash';
-
-
-
-interface Equipment {
-  id: number
-  name: string
-  description: string
-}
+import { format } from 'date-fns';
 
 interface IarrayHour {
   hour: number,
   minute: number
 }
-
 
 export default function NewEquipmentReserve() {
   const navigation = useNavigation();
@@ -40,6 +29,11 @@ export default function NewEquipmentReserve() {
   const [hoursSelectVisible, setHoursSelectVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false);
   const [equipmentModal, setEquipmentModal] = useState({});
+
+  const getData = ():String => {
+    const formattedDate = new Date(date);
+    return `${format(formattedDate, 'd/M/yyyy')}`
+  }
 
   const fetchEquipments = async (data) => {
 
@@ -83,10 +77,6 @@ export default function NewEquipmentReserve() {
     showMode('date');
   };
 
-  const showTimepicker = () => {
-    showMode('time');
-  };
-
   const loadEquipment = (time: IarrayHour) => {
 
     const hourMinute = time.split(':');
@@ -100,7 +90,6 @@ export default function NewEquipmentReserve() {
     }
 
     fetchEquipments(data)
-    setHoursSelectVisible(false);
   };
 
   const ShowModal = (item) => {
@@ -158,7 +147,7 @@ export default function NewEquipmentReserve() {
             <Text style={styles.textInput2}>Equipamento: <Text style={styles.textInput3}>{equipmentModal.name ? equipmentModal.name : ''}</Text></Text>
             <Text style={styles.textInput2}>Descrição:<Text style={styles.textInput3}>{equipmentModal.description ? equipmentModal.description : ''}</Text></Text>
             <Text style={styles.textInput2}>Horário da Reserva:<Text style={styles.textInput3}> {hour}</Text></Text>
-            <Text style={styles.textInput2}>Data da Reserva:<Text style={styles.textInput3}> {date.getFullYear}</Text></Text>
+            <Text style={styles.textInput2}>Data da Reserva:<Text style={styles.textInput3}> {getData()}</Text></Text>
             <View style={styles.divider} />
 
             <View style={styles.buttonModal}>
@@ -172,7 +161,7 @@ export default function NewEquipmentReserve() {
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => { setModalVisible(!modalVisible) }}
               >
-                <Text style={styles.textStyle}>Cancelar</Text>
+                <Text style={styles.textStyle}>Fechar</Text>
               </Pressable>
             </View>
           </View>
@@ -217,17 +206,14 @@ export default function NewEquipmentReserve() {
           <>
             <Text style={styles.textInput}>Equipamentos disponíveis:</Text>
 
-            <ScrollView>
               <FlatList
                 data={equipments}
                 renderItem={({ item, index, separators }) => (
                   <View style={{ paddingTop: 10, margin: 1 }}>
-                    {/* onPress={() => { }} */}
                     <EquipmentTouchable reserve={item} onPress={() => { ShowModal(item) }} />
                   </View>
                 )}
               />
-            </ScrollView>
           </>
           :
           null}

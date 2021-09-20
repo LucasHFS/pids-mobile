@@ -11,6 +11,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import RoomTouchable from '../../../../components/RoomTouchable/index';
 
 import { startHourArray } from '../../../../constants/hourArrays';
+import { format } from 'date-fns';
 
 interface IarrayHour {
   hour: number,
@@ -28,6 +29,11 @@ export default function NewRoomReserve() {
   const [modalVisible, setModalVisible] = useState(false);
   const [roomModal, setRoomModal] = useState({});
   const [hoursSelectVisible, setHoursSelectVisible] = useState(false)
+
+  const getData = ():String => {
+    const formattedDate = new Date(date);
+    return `${format(formattedDate, 'd/M/yyyy')}`
+  }
 
   const fetchRooms = async (data) => {
     try {
@@ -84,7 +90,6 @@ export default function NewRoomReserve() {
   };
 
   const loadRoom = (time: IarrayHour) => {
-    setHoursSelectVisible(false);
     const hourMinute = time.split(':');
 
     setHour(time);
@@ -154,7 +159,7 @@ export default function NewRoomReserve() {
             <Text style={styles.textInput2}>Tipo: <Text style={styles.textInput3}>{roomModal.type ? roomModal.type : ''}</Text></Text>
             <Text style={styles.textInput2}>Descrição: <Text style={styles.textInput3}>{roomModal.description ? roomModal.description : ''}</Text></Text>
             <Text style={styles.textInput2}>Horário da Reserva: <Text style={styles.textInput3}>{hour}</Text></Text>
-            <Text style={styles.textInput2}>Data da Reserva: <Text style={styles.textInput3}>{date.getFullYear}</Text></Text>
+            <Text style={styles.textInput2}>Data da Reserva: <Text style={styles.textInput3}>{getData()}</Text></Text>
 
             <View style={styles.divider} />
 
@@ -169,7 +174,7 @@ export default function NewRoomReserve() {
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => { setModalVisible(!modalVisible) }}
               >
-                <Text style={styles.textStyle}>Cancelar</Text>
+                <Text style={styles.textStyle}>Fechar</Text>
               </Pressable>
             </View>
           </View>

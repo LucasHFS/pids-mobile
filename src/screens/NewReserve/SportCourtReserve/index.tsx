@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
+import { Alert, Text, View, StyleSheet, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../services/api';
@@ -166,7 +166,7 @@ export default function SportCourtReserve() {
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => { cancelSelectSportCourt() }}
               >
-                <Text style={styles.textStyle}>Cancelar</Text>
+                <Text style={styles.textStyle}>Fechar</Text>
               </Pressable>
             </View>
           </View>

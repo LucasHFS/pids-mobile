@@ -11,6 +11,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import RoomTouchable from '../../../../components/RoomTouchable/index';
 
 import { hourArrayAvailable } from '../../../../constants/hourArraysAvailable';
+import { format } from 'date-fns';
 
 interface IarrayHour {
   hour: number,
@@ -31,6 +32,11 @@ export default function NewLabReserve() {
   const [roomModal, setRoomModal] = useState({});
   const [hoursSelectVisible, setHoursSelectVisible] = useState(false)
 
+
+  const getData = ():String => {
+    const formattedDate = new Date(date);
+    return `${format(formattedDate, 'd/M/yyyy')}`
+  }
 
   const onChange = (event, selectedDate) => {
     setHoursSelectVisible(true)
@@ -169,8 +175,6 @@ export default function NewLabReserve() {
             <Text style={styles.modalText}>Sala: {roomModal.name ? roomModal.name : ''}</Text>
             <Text style={styles.modalText}>Tipo: {roomModal.type ? roomModal.type : ''}</Text>
             <Text style={styles.modalText}>Descrição:{roomModal.description ? roomModal.description : ''}</Text>
-            <Text style={styles.modalText}>Horário da Reserva: {hour}</Text>
-            <Text style={styles.modalText}>Data da Reserva: {date.getFullYear}</Text>
 
             <View style={styles.buttonModal}>
               <Pressable
@@ -183,7 +187,7 @@ export default function NewLabReserve() {
                 style={[styles.button, styles.buttonClose]}
                 onPress={() => { cancelSelectRoom() }}
               >
-                <Text style={styles.textStyle}>Cancelar</Text>
+                <Text style={styles.textStyle}>Fechar</Text>
               </Pressable>
             </View>
           </View>
